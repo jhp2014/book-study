@@ -1,6 +1,7 @@
 package com.project.bookstudy.member.Service;
 
 import com.project.bookstudy.member.domain.Member;
+import com.project.bookstudy.member.domain.MemberStatus;
 import com.project.bookstudy.member.domain.Role;
 import com.project.bookstudy.member.dto.CreateMemberRequest;
 import com.project.bookstudy.member.dto.MemberDto;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -21,9 +23,12 @@ class MemberServiceTest {
     private MemberService memberService;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("회원가입 성공 테스트")
+    @Transactional
     void successJoinMember() {
         //given
         String name = "name";
@@ -48,14 +53,14 @@ class MemberServiceTest {
 
         Assertions.assertThat(findMember.getName()).isEqualTo(request.getName());
         Assertions.assertThat(findMember.getEmail()).isEqualTo(request.getEmail());
-        Assertions.assertThat(findMember.getPassword()).isEqualTo(request.getPassword());
+        Assertions.assertThat(passwordEncoder.matches(request.getPassword(), findMember.getPassword())).isTrue();
         Assertions.assertThat(findMember.getCareer()).isEqualTo(request.getCareer());
         Assertions.assertThat(findMember.getPhone()).isEqualTo(request.getPhone());
         Assertions.assertThat(findMember.getPoint()).isEqualTo(0L);
         Assertions.assertThat(findMember.getRole()).isEqualTo(Role.MEMBER);
         Assertions.assertThat(findMember.getRegisteredAt()).isNotNull();
         Assertions.assertThat(findMember.getUpdatedAt()).isNotNull();
-        Assertions.assertThat(findMember.getIsActivated()).isTrue();
+        Assertions.assertThat(findMember.getStatus()).isEqualTo(MemberStatus.WAITING);
     }
 
     @Test
@@ -71,7 +76,7 @@ class MemberServiceTest {
 
         Member member = Member.builder()
                 .email(email)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .phone(phone)
                 .name(name)
                 .career(career)

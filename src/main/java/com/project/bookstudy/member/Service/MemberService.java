@@ -6,6 +6,7 @@ import com.project.bookstudy.member.dto.MemberDto;
 import com.project.bookstudy.member.exception.DuplicateEmail;
 import com.project.bookstudy.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public MemberDto joinMember(CreateMemberRequest request) {
@@ -23,7 +25,7 @@ public class MemberService {
 
         Member member = Member.builder()
                 .name(request.getName())
-                .password(request.getPassword())    //비밀번호 암호화 후 저장해야한다.
+                .password(passwordEncoder.encode(request.getPassword()))    //비밀번호 암호화 후 저장해야한다.
                 .email(request.getEmail())
                 .career(request.getCareer())
                 .phone(request.getPhone())
@@ -39,4 +41,5 @@ public class MemberService {
             throw new DuplicateEmail("email", "같은 이메일이 존재합니다.");
         }
     }
+
 }
