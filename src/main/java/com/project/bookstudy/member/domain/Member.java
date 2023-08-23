@@ -22,11 +22,14 @@ public class Member {
     @Lob
     private String career;
     private Long point = 0L; //나중에 Point class 따로 생성?
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
-    private Boolean isActivated;
+
+    @Enumerated(EnumType.STRING)
+    private MemberStatus status;
 
     @Builder
     private Member(String email, String name, String password, String phone, String career) {
@@ -39,7 +42,9 @@ public class Member {
         this.point = 0L;
         this.registeredAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.isActivated = true;
+        this.status = MemberStatus.WAITING;
         this.role = Role.MEMBER;
+
+
     }
 }
