@@ -44,7 +44,11 @@ public class Member {
         this.updatedAt = LocalDateTime.now();
         this.status = MemberStatus.WAITING;
         this.role = Role.MEMBER;
+    }
 
+    public void updateName(String name) {
+        if (name == null) return;
 
+        this.name = name;
     }
 }

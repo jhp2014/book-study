@@ -19,17 +19,17 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public MemberDto joinMember(CreateMemberRequest request) {
+        public MemberDto joinMember(CreateMemberRequest request) {
 
-        validateDuplicateEmail(request.getEmail());
+            validateDuplicateEmail(request.getEmail());
 
-        Member member = Member.builder()
-                .name(request.getName())
-                .password(passwordEncoder.encode(request.getPassword()))    //비밀번호 암호화 후 저장해야한다.
-                .email(request.getEmail())
-                .career(request.getCareer())
-                .phone(request.getPhone())
-                .build();
+            Member member = Member.builder()
+                    .name(request.getName())
+                    .password(passwordEncoder.encode(request.getPassword()))    //비밀번호 암호화 후 저장해야한다.
+                    .email(request.getEmail())
+                    .career(request.getCareer())
+                    .phone(request.getPhone())
+                    .build();
 
         Member savedMember = memberRepository.save(member);
 

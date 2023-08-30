@@ -1,0 +1,20 @@
+### 회원가입
+POST http://localhost:8080/member
+Content-Type: application/json
+
+{
+  "name":"name",
+  "password":"!@tt6018lw",
+  "phone" : "010-7474-8181",
+  "email" : "whdgnsdl35@naver.com",
+  "career" : "취준생"
+}
+
+### 로그인
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email" : "whdgnsdl35@naver.com",
+  "password":"!@tt6018lw"
+}
