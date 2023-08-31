@@ -44,7 +44,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    //Refresh 토큰 생성
     public String createRefreshToken(Long memberId) {
         Claims claims = Jwts.claims();
         claims.put(MEMBER_ID, memberId);
@@ -52,14 +51,12 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiredDate = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME);
 
-        String refreshToken = Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-
-        return refreshToken;
     }
 
 }

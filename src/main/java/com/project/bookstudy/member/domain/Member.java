@@ -18,13 +18,11 @@ public class Member extends BaseTimeEntity {
     private String email;
     private String name;
     private String phone;
-
     @Lob
     private String career;
     private Long point = 0L; //나중에 Point class 따로 생성?
     @Enumerated(EnumType.STRING)
     private Role role;
-
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
@@ -34,9 +32,7 @@ public class Member extends BaseTimeEntity {
         this.name = name;
         this.phone = phone;
         this.career = career;
-
         this.point = 0L;
-
         this.status = MemberStatus.ACTIVE;
         this.role = Role.MEMBER;
     }

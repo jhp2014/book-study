@@ -1,6 +1,7 @@
 package com.project.bookstudy.security.oauth;
 
 import com.project.bookstudy.member.domain.Member;
+import com.project.bookstudy.member.exception.MemberNotFound;
 import com.project.bookstudy.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,17 +35,22 @@ public class KakaoOAuth2MemberService implements OAuth2UserService<OAuth2UserReq
         String email = (String) memberInfo.get("email");
         String name = (String) ((Map) memberInfo.get("profile")).get("nickname");
 
-        saveOrUpdate(email, name);
+        Member member = saveOrUpdate(email, name);
 
-        return oAuth2User;
+        //Success handler needs Member entity to create access token.
+        MemberOAuth2User memberOAuth2User = new MemberOAuth2User(member, oAuth2User);
+        return memberOAuth2User;
     }
 
-    private void saveOrUpdate(String email, String name) {
+    private Member saveOrUpdate(String email, String name) {
 
         Optional<Member> memberOptional = memberRepository.findByEmail(email);
 
-        memberOptional.ifPresentOrElse(
-                member -> {if (member.getName().equals(name)) {member.updateName(name);}}
-                , () -> memberRepository.save(Member.builder().email(email).name(name).build()));
+        if (memberOptional.isEmpty()) {
+            Member member = memberRepository.save(Member.builder().email(email).name(name).build());
+            return member;
+        }
+
+        return memberOptional.get();
     }
 }
