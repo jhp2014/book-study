@@ -40,4 +40,9 @@ public class Member extends BaseTimeEntity {
         this.status = MemberStatus.ACTIVE;
         this.role = Role.MEMBER;
     }
+
+    public void updateName(String name) {
+        if (name == null) return;
+        this.name = name;
+    }
 }
