@@ -56,7 +56,4 @@ public class SecurityObjectConfig {
         filter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
         return filter;
     }
-
-
-
 }

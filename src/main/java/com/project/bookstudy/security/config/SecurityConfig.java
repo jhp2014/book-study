@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -20,9 +21,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.formLogin().disable();
-        http.oauth2Login()
-                .userInfoEndpoint().userService(kakaoOAuth2MemberService)
+        http.formLogin()
+                .disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+            .oauth2Login()
+                .userInfoEndpoint()
+                .userService(kakaoOAuth2MemberService)
                 .and()
                 .successHandler(oAuth2LoginSuccessHandler);
 
@@ -33,8 +38,5 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().antMatchers();
     }
-
-
-
 
 }
