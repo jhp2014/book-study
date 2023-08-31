@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "member_id")
     private Long id;
+    @Column(nullable = false)
     private String email;
     private String name;
-    private String password;
     private String phone;
 
     @Lob
@@ -25,30 +25,19 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private LocalDateTime registeredAt;
-    private LocalDateTime updatedAt;
-
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
     @Builder
-    private Member(String email, String name, String password, String phone, String career) {
+    private Member(String email, String name, String phone, String career) {
         this.email = email;
         this.name = name;
-        this.password = password;
         this.phone = phone;
         this.career = career;
 
         this.point = 0L;
-        this.registeredAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.status = MemberStatus.WAITING;
+
+        this.status = MemberStatus.ACTIVE;
         this.role = Role.MEMBER;
-    }
-
-    public void updateName(String name) {
-        if (name == null) return;
-
-        this.name = name;
     }
 }

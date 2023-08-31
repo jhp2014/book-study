@@ -1,7 +1,7 @@
 package com.project.bookstudy.security.config;
 
-import com.project.bookstudy.security.KakaoOAuth2MemberService;
-import com.project.bookstudy.security.OAuth2LoginSuccessHandler;
+import com.project.bookstudy.security.oauth.KakaoOAuth2MemberService;
+import com.project.bookstudy.security.oauth.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +33,4 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().antMatchers();
     }
-
-
-
-
 }

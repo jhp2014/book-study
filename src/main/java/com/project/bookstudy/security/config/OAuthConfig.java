@@ -1,7 +1,7 @@
 package com.project.bookstudy.security.config;
 
 import com.project.bookstudy.member.repository.MemberRepository;
-import com.project.bookstudy.security.KakaoOAuth2MemberService;
+import com.project.bookstudy.security.oauth.KakaoOAuth2MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityOAuthConfig {
+public class OAuthConfig {
 
     private final MemberRepository memberRepository;
 

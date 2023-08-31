@@ -1,4 +1,4 @@
-package com.project.bookstudy.security;
+package com.project.bookstudy.security.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.bookstudy.member.domain.Member;
