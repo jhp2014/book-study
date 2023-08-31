@@ -6,6 +6,17 @@ spring:
       hibernate:
         format_sql: true
 
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+
   security:
     oauth2:
       client:
@@ -29,12 +40,10 @@ spring:
             user-name-attribute: id
 
 
-  jwt:
-    secret: fdsafdsajkeawfdjskalewdsafdsajkeawfdjskalewdsafdsajkeawfdjskalew2312!@!##@!
-
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
 
-
+jwt:
+  secret: fdsafdsajkeawfdjskalewdsafdsajkeawfdjskalewdsafdsajkeawfdjskalew2312!@!##@!

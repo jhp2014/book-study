@@ -19,14 +19,22 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.formLogin().disable();
-        http.oauth2Login()
+        return http
+                .csrf().disable()
+                .formLogin().disable()
+                .httpBasic().disable()
+                .headers().frameOptions().disable()
+                    .and()
+                .authorizeRequests()
+                .mvcMatchers("/h2-console")
+                .permitAll()
+                    .and()
+                .oauth2Login()
                 .userInfoEndpoint().userService(kakaoOAuth2MemberService)
-                .and()
-                .successHandler(oAuth2LoginSuccessHandler);
-
-        return http.build();
+                    .and()
+                .successHandler(oAuth2LoginSuccessHandler)
+                    .and()
+                .build();
     }
 
     @Bean

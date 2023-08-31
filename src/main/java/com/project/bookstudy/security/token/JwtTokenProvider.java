@@ -16,11 +16,10 @@ import java.util.Date;
 
 @Service
 public class JwtTokenProvider {
-
     private Key key;
 
     @Autowired
-    public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] bytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(bytes);
     }
