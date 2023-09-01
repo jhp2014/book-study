@@ -2,13 +2,10 @@ package com.project.bookstudy.security.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.bookstudy.member.domain.Member;
-import com.project.bookstudy.member.repository.MemberRepository;
-import com.project.bookstudy.security.token.JwtTokenDto;
 import com.project.bookstudy.security.token.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,11 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@Component
+
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -32,9 +28,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getId());
 
         //응답 본문에 토큰 값
-        response.getWriter().write(objectMapper.writeValueAsString(JwtTokenDto.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .build()));
+        response.setHeader(JwtTokenProvider.ACCESS_TOKEN_RESPONSE_HEADER, accessToken);
+        response.setHeader(JwtTokenProvider.REFRESH_TOKEN_RESPONSE_HEADER, refreshToken);
     }
 }
