@@ -1,0 +1,10 @@
+### OAuth2 Login
+GET http://localhost:8080/oauth2/authorization/kakao
+
+### 토큰 발급
+GET http://localhost:8080/login/oauth2/code/kakao?code=-oxF9gIG0cnmPm-4aCG4uFpxI6aL2-X9Mc5lkUw-xTf8lIsnoDIGDMhvxiSjCoLuQoEScgo9dNkAAAGKWXV4kg&state=5VkwgsN5Cv1NXFWiFBAOFNUM74TzN1_x-GKKvfwsAKM%3D
+
+
+### 권한 필요한 페이지 접근
+GET http://localhost:8080/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJtZW1iZXJJZCI6MSwiaWF0IjoxNjkzNzMxNTk1LCJleHAiOjE2OTM3MzMzOTV9.zJ-SA_uwaSpOiqR0QvaVSANncyvM0ZMsx7SVANrWk0Q

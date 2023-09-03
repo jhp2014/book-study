@@ -1,12 +1,19 @@
 package com.project.bookstudy.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.bookstudy.security.ExceptionHandlerFilter;
-import com.project.bookstudy.security.JwtAuthenticationFilter;
-import com.project.bookstudy.security.oauth.KakaoOAuth2MemberService;
-import com.project.bookstudy.security.oauth.OAuth2LoginSuccessHandler;
-import com.project.bookstudy.security.token.JwtTokenProvider;
+import com.project.bookstudy.member.domain.Role;
+import com.project.bookstudy.security.filter.JwtTokenRefreshFilter;
+import com.project.bookstudy.security.filter.hadler.ApiAccessDeniedHandler;
+import com.project.bookstudy.security.filter.hadler.ApiAuthenticationEntryPoint;
+import com.project.bookstudy.security.filter.ExceptionHandlerFilter;
+import com.project.bookstudy.security.filter.JwtAuthenticationFilter;
+import com.project.bookstudy.security.service.KakaoOAuth2MemberService;
+import com.project.bookstudy.security.filter.hadler.OAuth2LoginFailureHandler;
+import com.project.bookstudy.security.filter.hadler.OAuth2LoginSuccessHandler;
+import com.project.bookstudy.security.service.JwtTokenService;
+import com.project.bookstudy.security.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,31 +26,41 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenService jwtTokenService;
+    private final TokenRepository tokenRepository;
     private final ObjectMapper objectMapper;
     private final KakaoOAuth2MemberService kakaoOAuth2MemberService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf().disable()
+
+        http.csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
-                .headers().frameOptions().disable()
-                .and()
-                .authorizeRequests().mvcMatchers("/test").authenticated()
-                .and()
-                .oauth2Login()
-                    .userInfoEndpoint().userService(kakaoOAuth2MemberService).and()
-                    .successHandler(new OAuth2LoginSuccessHandler(jwtTokenProvider))
-                .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new ExceptionHandlerFilter(objectMapper), JwtAuthenticationFilter.class)
-                .build();
-    }
+                .headers().frameOptions().disable();
 
+        http.authorizeRequests()
+                .mvcMatchers("/test").authenticated()
+                .anyRequest().permitAll();
+
+        http.oauth2Login()
+                .userInfoEndpoint().userService(kakaoOAuth2MemberService).and()
+                .successHandler(new OAuth2LoginSuccessHandler(jwtTokenService, tokenRepository))
+                .failureHandler(new OAuth2LoginFailureHandler(objectMapper));
+
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenRefreshFilter(jwtTokenService), JwtAuthenticationFilter.class)
+                .addFilterBefore(new ExceptionHandlerFilter(objectMapper), JwtTokenRefreshFilter.class)
+                .exceptionHandling()
+                .accessDeniedHandler(new ApiAccessDeniedHandler(objectMapper))    //AccessDeniedException
+                .authenticationEntryPoint(new ApiAuthenticationEntryPoint(objectMapper)); //AuthenticationException
+
+        return http.build();
+    }
+    
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()

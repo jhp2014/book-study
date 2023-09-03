@@ -1,6 +1,6 @@
-package com.project.bookstudy.security;
+package com.project.bookstudy.security.filter;
 
-import com.project.bookstudy.security.token.JwtTokenProvider;
+import com.project.bookstudy.security.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,8 +16,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
-    private static final String TOKEN_HEADER = "Authorization";
+    private final JwtTokenService jwtTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -28,18 +27,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         * 토큰이 없는 경우, 다음 필터 호출
         * 어차피 Authentication 객체가 없으므로, 권한 필티에서 막힌다.
         */
-        if (!StringUtils.hasText(token)) {
+        if (!StringUtils.hasText(token) || !token.startsWith(JwtTokenService.ACCESS_TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        Authentication authentication = jwtTokenService.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
-        return request.getHeader(TOKEN_HEADER);
+        return request.getHeader(JwtTokenService.ACCESS_TOKEN_REQUEST_HEADER);
     }
+
+
 }

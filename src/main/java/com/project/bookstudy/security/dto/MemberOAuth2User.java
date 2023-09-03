@@ -1,4 +1,4 @@
-package com.project.bookstudy.security.oauth;
+package com.project.bookstudy.security.dto;
 
 import com.project.bookstudy.member.domain.Member;
 import lombok.Getter;

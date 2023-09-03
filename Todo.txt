@@ -1,0 +1,6 @@
+문제) Token Response Setting 하는 부분이 자꾸 중복 된다.
+해결) ResponseUtils 생성 해서 공통화
+
+문제) Refresh Token을 Header에서 받는다. 
+문제) Refresh Token 응답 시, HttpOnly Cookie에 응답을 주어야 할것 같다.
+

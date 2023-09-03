@@ -1,7 +1,7 @@
 package com.project.bookstudy.security.config;
 
 import com.project.bookstudy.member.repository.MemberRepository;
-import com.project.bookstudy.security.oauth.KakaoOAuth2MemberService;
+import com.project.bookstudy.security.service.KakaoOAuth2MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

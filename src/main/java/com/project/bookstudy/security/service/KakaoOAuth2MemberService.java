@@ -1,8 +1,8 @@
-package com.project.bookstudy.security.oauth;
+package com.project.bookstudy.security.service;
 
 import com.project.bookstudy.member.domain.Member;
-import com.project.bookstudy.member.exception.MemberNotFound;
 import com.project.bookstudy.member.repository.MemberRepository;
+import com.project.bookstudy.security.dto.MemberOAuth2User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
