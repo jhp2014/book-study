@@ -1,9 +1,5 @@
 package com.project.bookstudy.member.exception;
 
-import com.project.bookstudy.member.dto.ErrorInfo;
-
-import java.util.List;
-
 public class MemberNotFound extends MemberException{
 
     public final static String MESSAGE = "존재하지 않는 회원입니다.";
@@ -16,9 +12,6 @@ public class MemberNotFound extends MemberException{
         super(MESSAGE);
         addErrorInfo(field, errorMessage);
     }
-
-
-
 
     @Override
     public int getErrorCode() {

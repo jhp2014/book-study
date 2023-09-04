@@ -5,12 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class ErrorInfo {
+public class ErrorField {
     private String field;
     private String errorMessage;
 
     @Builder
-    public ErrorInfo(String field, String errorMessage) {
+    public ErrorField(String field, String errorMessage) {
         this.field = field;
         this.errorMessage = errorMessage;
     }

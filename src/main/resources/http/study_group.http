@@ -1,0 +1,16 @@
+### 스터디 그룹 생성 요청
+POST http://localhost:8080/study-group
+Content-Type: application/json
+
+{
+  "memberId":1,
+  "subject":"test",
+  "contents":"test_contests",
+  "contentsDetail":"test_detail",
+  "maxSize":10,
+  "price":100000,
+  "studyStartAt":"2023-09-10T16:52:36",
+  "studyEndAt":"2023-09-13T16:52:36",
+  "recruitmentStartAt":"2023-09-04T16:52:36",
+  "recruitmentEndAt":"2023-09-07T16:52:36"
+}
