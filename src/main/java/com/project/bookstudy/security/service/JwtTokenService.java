@@ -4,7 +4,7 @@ import com.project.bookstudy.member.domain.Role;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.security.domain.RefreshToken;
 import com.project.bookstudy.security.dto.TokensDto;
-import com.project.bookstudy.security.exception.SecurityErrorMessage;
+import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.security.repository.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -52,7 +52,7 @@ public class JwtTokenService {
     public TokensDto reIssueTokens(String refreshTokenValue) {
 
         RefreshToken refreshToken = tokenRepository.findByTokenValue(refreshTokenValue)
-                .orElseThrow(() -> new MalformedJwtException(SecurityErrorMessage.INVALID_TOKEN.getMessage()));
+                .orElseThrow(() -> new MalformedJwtException(ErrorMessage.INVALID_TOKEN.getMessage()));
         TokensDto tokens = createTokens(refreshToken.getMemberId());
         return tokens;
     }

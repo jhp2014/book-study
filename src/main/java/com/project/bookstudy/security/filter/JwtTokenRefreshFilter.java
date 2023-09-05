@@ -1,7 +1,7 @@
 package com.project.bookstudy.security.filter;
 
 import com.project.bookstudy.security.dto.TokensDto;
-import com.project.bookstudy.security.exception.SecurityErrorMessage;
+import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.security.filter.utils.ResponseUtils;
 import com.project.bookstudy.security.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class JwtTokenRefreshFilter extends OncePerRequestFilter {
         String refreshToken = request.getHeader(JwtTokenService.REFRESH_TOKEN_REQUEST_HEADER);
 
         if (!StringUtils.hasText(refreshToken)) {
-            throw new IllegalArgumentException(SecurityErrorMessage.INCORRECT_HEADER.getMessage());
+            throw new IllegalArgumentException(ErrorMessage.INCORRECT_HEADER.getMessage());
         }
 
         TokensDto tokens = jwtTokenService.reIssueTokens(refreshToken);
