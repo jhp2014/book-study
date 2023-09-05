@@ -1,7 +1,7 @@
-package com.project.bookstudy.study_group.dto;
+package com.project.bookstudy.study_group.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.project.bookstudy.study_group.domain.StudyGroupParam;
+import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -46,8 +46,8 @@ public class CreateStudyGroupRequest {
         this.recruitmentEndAt = recruitmentEndAt;
     }
 
-    public StudyGroupParam createStudyGroupParam() {
-        return StudyGroupParam.builder()
+    public CreateStudyGroupParam getCreateStudyGroupParam() {
+        return CreateStudyGroupParam.builder()
                 .studyStartAt(this.studyStartAt)
                 .studyEndAt(this.studyEndAt)
                 .recruitmentStartAt(this.recruitmentStartAt)
@@ -58,9 +58,5 @@ public class CreateStudyGroupRequest {
                 .subject(this.subject)
                 .contents(this.contents)
                 .build();
-    }
-
-    public Long getMemberId() {
-        return memberId;
     }
 }

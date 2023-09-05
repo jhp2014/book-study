@@ -1,14 +1,15 @@
 package com.project.bookstudy.study_group.dto;
 
 import com.project.bookstudy.member.domain.Member;
-import com.project.bookstudy.member.dto.MemberDto;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
+@ToString
 public class StudyGroupDto {
 
     private Long id;
@@ -21,10 +22,13 @@ public class StudyGroupDto {
     private LocalDateTime recruitmentEndAt;
     private int maxSize;
     private Long price;
-    private MemberDto leader;
+    private Long leaderId;
+    private String leaderName;
 
     @Builder
-    public StudyGroupDto(Long id, String subject, String contents, String contentsDetail, LocalDateTime studyStartAt, LocalDateTime studyEndAt, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt, int maxSize, Long price, MemberDto leader) {
+    public StudyGroupDto(Long id, String subject, String contents, String contentsDetail, int maxSize, Long price,
+                         LocalDateTime studyStartAt, LocalDateTime studyEndAt, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt,
+                         Long leaderId, String leaderName) {
         this.id = id;
         this.subject = subject;
         this.contents = contents;
@@ -35,10 +39,11 @@ public class StudyGroupDto {
         this.recruitmentEndAt = recruitmentEndAt;
         this.maxSize = maxSize;
         this.price = price;
-        this.leader = leader;
+        this.leaderId = leaderId;
+        this.leaderName = leaderName;
     }
 
-    public static StudyGroupDto fromEntity(StudyGroup studyGroup, Member member) {
+    public static StudyGroupDto fromEntity(StudyGroup studyGroup, Member leader) {
         return StudyGroupDto.builder()
                 .id(studyGroup.getId())
                 .subject(studyGroup.getSubject())
@@ -50,7 +55,8 @@ public class StudyGroupDto {
                 .recruitmentEndAt(studyGroup.getRecruitmentEndAt())
                 .maxSize(studyGroup.getMaxSize())
                 .price(studyGroup.getPrice())
-                .leader(MemberDto.fromEntity(member))
+                .leaderId(leader.getId())
+                .leaderName(leader.getName())
                 .build();
     }
 }

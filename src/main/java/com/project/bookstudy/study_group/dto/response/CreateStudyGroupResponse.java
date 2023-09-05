@@ -1,4 +1,4 @@
-package com.project.bookstudy.study_group.dto;
+package com.project.bookstudy.study_group.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

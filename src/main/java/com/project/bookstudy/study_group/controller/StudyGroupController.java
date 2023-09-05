@@ -1,13 +1,13 @@
 package com.project.bookstudy.study_group.controller;
 
-import com.project.bookstudy.study_group.dto.CreateStudyGroupRequest;
-import com.project.bookstudy.study_group.dto.CreateStudyGroupResponse;
+import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.service.StudyGroupService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,11 +18,21 @@ public class StudyGroupController {
     @PostMapping("/study-group")
     public CreateStudyGroupResponse createStudyGroup(@RequestBody CreateStudyGroupRequest request) {
         StudyGroupDto studyGroupDto = studyGroupService
-                .createStudyGroup(request.createStudyGroupParam(), request.getMemberId());
+                .createStudyGroup(request.getMemberId(), request.getCreateStudyGroupParam());
 
         return CreateStudyGroupResponse.builder()
                 .studyGroupId(studyGroupDto.getId())
-                .leaderId(studyGroupDto.getLeader().getId())
+                .leaderId(studyGroupDto.getLeaderId())
                 .build();
+    }
+
+    @GetMapping("/study-group")
+    public Page<StudyGroupDto> getStudyGroupList(Pageable pageable) {
+        return studyGroupService.getStudyGroupList(pageable);
+    }
+
+    @GetMapping("/study-group/{id}")
+    public StudyGroupDto getStudyGroup(@PathVariable("id") Long studyId) {
+        return studyGroupService.getStudyGroup(studyId);
     }
 }

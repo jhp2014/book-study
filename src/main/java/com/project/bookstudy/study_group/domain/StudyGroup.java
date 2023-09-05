@@ -1,6 +1,8 @@
 package com.project.bookstudy.study_group.domain;
 
 import com.project.bookstudy.member.domain.Member;
+import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
+import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import lombok.*;
 
 import javax.persistence.*;
@@ -8,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@ToString(exclude = {"leader"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyGroup {
 
@@ -33,16 +34,16 @@ public class StudyGroup {
         this.subject = subject;
         this.contents = contents;
         this.contentsDetail = contentsDetail;
-        this.studyStartAt = studyStartAt;
-        this.studyEndAt = studyEndAt;
         this.maxSize = maxSize;
         this.price = price;
+        this.leader = leader;
+        this.studyEndAt = studyEndAt;
+        this.studyStartAt = studyStartAt;
         this.recruitmentStartAt = recruitmentStartAt;
         this.recruitmentEndAt = recruitmentEndAt;
-        this.leader = leader;
     }
 
-    public static StudyGroup from(Member leader, StudyGroupParam studyGroupParam) {
+    public static StudyGroup from(Member leader, CreateStudyGroupParam studyGroupParam) {
         return StudyGroup.builder()
                 .leader(leader)
                 .studyStartAt(studyGroupParam.getStudyStartAt())
