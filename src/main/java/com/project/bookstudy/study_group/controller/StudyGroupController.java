@@ -1,6 +1,7 @@
 package com.project.bookstudy.study_group.controller;
 
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.response.CreateStudyGroupResponse;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.service.StudyGroupService;
@@ -28,11 +29,20 @@ public class StudyGroupController {
 
     @GetMapping("/study-group")
     public Page<StudyGroupDto> getStudyGroupList(Pageable pageable) {
+        //검색 기능 추가 해야한다.
         return studyGroupService.getStudyGroupList(pageable);
     }
 
     @GetMapping("/study-group/{id}")
     public StudyGroupDto getStudyGroup(@PathVariable("id") Long studyId) {
         return studyGroupService.getStudyGroup(studyId);
+    }
+
+    @PostMapping("/study-group/{id}")
+    public void updateStudyGroup(@PathVariable("id") Long studyId
+            , @RequestBody UpdateStudyGroupRequest request) {
+
+        studyGroupService.updateStudyGroup(studyId, request.getUpdateStudyGroupParam());
+
     }
 }

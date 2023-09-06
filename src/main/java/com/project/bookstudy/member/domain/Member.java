@@ -3,7 +3,6 @@ package com.project.bookstudy.member.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -40,5 +39,9 @@ public class Member extends BaseTimeEntity {
     public void updateName(String name) {
         if (name == null) return;
         this.name = name;
+    }
+
+    public void chargePoint(Long point) {
+        this.point += point;
     }
 }

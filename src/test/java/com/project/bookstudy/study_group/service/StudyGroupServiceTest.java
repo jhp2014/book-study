@@ -1,11 +1,14 @@
 package com.project.bookstudy.study_group.service;
 
+import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
+import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
+import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -21,6 +24,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @SpringBootTest
@@ -97,7 +101,7 @@ class StudyGroupServiceTest {
     }
 
     @Test
-    @DisplayName("StudyGroupList 조회")
+    @DisplayName("StudyGroup 여러건 조회")
     @Transactional
     void getStudyListSuccess() {
         //given
@@ -123,6 +127,31 @@ class StudyGroupServiceTest {
         Assertions.assertThat(content.size()).isEqualTo(pageSize);
     }
 
+    @Test
+    @DisplayName("StudyGroup 수정")
+    @Transactional
+    void updateStudySuccess() {
+        //given
+        Member member = memberRepository.save(createMember("박종훈"));
+        CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").getCreateStudyGroupParam();
+        StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(member, param));
+
+        UpdateStudyGroupParam updateParam = getUpdateStudyGroupRequest("update_subject").getUpdateStudyGroupParam();
+
+        //when
+        studyGroupService.updateStudyGroup(saveStudyGroup.getId(), updateParam);
+        entityManager.flush();
+
+        //then
+        StudyGroup findStudyGroup = studyGroupRepository.findById(saveStudyGroup.getId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+
+        Assertions.assertThat(findStudyGroup.getSubject()).isEqualTo(updateParam.getSubject());
+        Assertions.assertThat(findStudyGroup.getPrice()).isEqualTo(updateParam.getPrice());
+        Assertions.assertThat(findStudyGroup.getContents()).isEqualTo(updateParam.getContents());
+        Assertions.assertThat(findStudyGroup.getContentsDetail()).isEqualTo(updateParam.getContentsDetail());
+        Assertions.assertThat(findStudyGroup.getMaxSize()).isEqualTo(updateParam.getMaxSize());
+    }
 
 
     private Member createMember(String name) {
@@ -160,6 +189,33 @@ class StudyGroupServiceTest {
                 .price(price)
                 .maxSize(maxSize)
                 .build();
+        return request;
+    }
+
+    private UpdateStudyGroupRequest getUpdateStudyGroupRequest(String subject) {
+
+        String contents = "update_contests";
+        String contestsDetail = "update_detail";
+        Long price = 500000L;
+        int maxSize = 50;
+
+        LocalDateTime recruitStart = LocalDateTime.now();
+        LocalDateTime recruitEnd = recruitStart.plusDays(3);
+        LocalDateTime start = recruitEnd.plusDays(3);
+        LocalDateTime end = start.plusDays(3);
+
+        UpdateStudyGroupRequest request = UpdateStudyGroupRequest.builder()
+                .maxSize(maxSize)
+                .contents(contents)
+                .subject(subject)
+                .price(price)
+                .contentsDetail(contestsDetail)
+                .studyStartAt(start)
+                .studyEndAt(end)
+                .recruitmentStartAt(recruitStart)
+                .recruitmentEndAt(recruitEnd)
+                .build();
+
         return request;
     }
 

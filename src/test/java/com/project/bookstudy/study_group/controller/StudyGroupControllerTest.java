@@ -6,6 +6,7 @@ import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import com.project.bookstudy.study_group.service.StudyGroupService;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +46,7 @@ class StudyGroupControllerTest {
     @Autowired private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("POST /study-group :: 스터디 그룹 생성 Success")
+    @DisplayName("POST /study-group 스터디 그룹 생성 성공")
     void createStudySuccess() throws Exception {
         //given
         Member member = memberRepository.save(createMember("박종훈"));
@@ -70,7 +71,7 @@ class StudyGroupControllerTest {
     }
 
     @Test
-    @DisplayName("GET /study-group/{id} :: 스터디 그룹 생성 Success")
+    @DisplayName("GET /study-group/{id} 스터디 그룹 조회 성공")
     @Transactional
     void getStudySuccess() throws Exception {
         //given
@@ -97,7 +98,7 @@ class StudyGroupControllerTest {
     }
 
     @Test
-    @DisplayName("GET /study-group :: 스터디 그룹 생성 Success")
+    @DisplayName("GET /study-group 스터디 그룹 여러건 조회 성공")
     @Transactional
     void getStudyListSuccess() throws Exception {
         //given
@@ -128,6 +129,30 @@ class StudyGroupControllerTest {
                 .andExpect(jsonPath("$.first").value(true))
                 .andExpect(jsonPath("$.numberOfElements").value(10))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("POST /study-group/{id} 스터디 그룹 수정 성공")
+    @Transactional
+    void updateStudySuccess() throws Exception {
+        //given
+        Member member = memberRepository.save(createMember("박종훈"));
+        CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.getCreateStudyGroupParam()));
+
+        UpdateStudyGroupRequest updateStudyGroupRequest = getUpdateStudyGroupRequest("update_subject");
+        String jsonRequest = objectMapper.writeValueAsString(updateStudyGroupRequest);
+
+        //when
+        ResultActions resultActions = mockMvc
+                .perform(post("/study-group/{id}",studyGroup.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest)
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(MockMvcResultHandlers.print());
+
+        //then
+        resultActions.andExpect(status().isOk());
     }
 
     private Member createMember(String name) {
@@ -165,5 +190,32 @@ class StudyGroupControllerTest {
                 .price(price)
                 .maxSize(maxSize)
                 .build();
+    }
+
+    private UpdateStudyGroupRequest getUpdateStudyGroupRequest(String subject) {
+
+        String contents = "update_contests";
+        String contestsDetail = "update_detail";
+        Long price = 500000L;
+        int maxSize = 50;
+
+        LocalDateTime recruitStart = LocalDateTime.now();
+        LocalDateTime recruitEnd = recruitStart.plusDays(3);
+        LocalDateTime start = recruitEnd.plusDays(3);
+        LocalDateTime end = start.plusDays(3);
+
+        UpdateStudyGroupRequest request = UpdateStudyGroupRequest.builder()
+                .maxSize(maxSize)
+                .contents(contents)
+                .subject(subject)
+                .price(price)
+                .contentsDetail(contestsDetail)
+                .studyStartAt(start)
+                .studyEndAt(end)
+                .recruitmentStartAt(recruitStart)
+                .recruitmentEndAt(recruitEnd)
+                .build();
+
+        return request;
     }
 }

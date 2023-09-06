@@ -46,7 +46,11 @@ public class Enrollment {
         this.member = member;
         this.studyGroup = studyGroup;
         this.payment = payment;
+        this.status = EnrollStatus.CREATED;
+    }
 
-        this.status = EnrollStatus.PAYMENT_WAITING;
+    public void cancel() {
+        if (status == EnrollStatus.PAID) { payment.refund();}
+        status = EnrollStatus.CANCEL;
     }
 }

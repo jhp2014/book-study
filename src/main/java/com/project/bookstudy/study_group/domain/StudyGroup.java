@@ -3,7 +3,10 @@ package com.project.bookstudy.study_group.domain;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -56,5 +59,35 @@ public class StudyGroup {
                 .price(studyGroupParam.getPrice())
                 .maxSize(studyGroupParam.getMaxSize())
                 .build();
+    }
+
+    public void update(UpdateStudyGroupParam param) {
+        this.subject = param.getSubject();
+        this.contents = param.getContents();
+        this.contentsDetail = param.getContentsDetail();
+        this.maxSize = param.getMaxSize();
+        this.price = param.getPrice();
+        this.studyStartAt = param.getStudyStartAt();
+        this.studyEndAt = param.getStudyEndAt();
+        this.recruitmentStartAt = param.getRecruitmentStartAt();
+        this.recruitmentEndAt = param.getRecruitmentEndAt();
+    }
+
+    public void delete() {
+        //1. 스터디 시작 전에만 환불 가능
+
+
+        this.subject = null;
+        this.contents = null;
+        this.contentsDetail = null;
+        this.studyStartAt = null;
+        this.studyEndAt = null;
+        this.recruitmentStartAt = null;
+        this.recruitmentEndAt = null;
+    }
+
+    public boolean isStarted() {
+        if (LocalDateTime.now().isAfter(studyStartAt)) return true;
+        return false;
     }
 }
