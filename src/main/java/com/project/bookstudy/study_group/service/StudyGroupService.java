@@ -8,6 +8,7 @@ import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
+import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.project.bookstudy.study_group.repository.EnrollmentRepository;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -45,8 +47,8 @@ public class StudyGroupService {
         return studyGroupDto;
     }
 
-    public Page<StudyGroupDto> getStudyGroupList(Pageable pageable) {
-        Page<StudyGroup> studyGroups = studyGroupRepository.searchStudyGroup(pageable);
+    public Page<StudyGroupDto> getStudyGroupList(Pageable pageable, StudyGroupSearchCond cond) {
+        Page<StudyGroup> studyGroups = studyGroupRepository.searchStudyGroup(pageable, cond);
         return studyGroups.map(entity -> StudyGroupDto.fromEntity(entity, entity.getLeader()));
     }
 

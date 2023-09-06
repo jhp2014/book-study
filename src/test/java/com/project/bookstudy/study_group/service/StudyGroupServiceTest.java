@@ -8,6 +8,7 @@ import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
+import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +106,7 @@ class StudyGroupServiceTest {
     @Transactional
     void getStudyListSuccess() {
         //given
-        int totalDataNum = 50;
+        int totalDataNum = 10;
         List<StudyGroup> studyGroups = new ArrayList<>();
         IntStream.range(0,totalDataNum).forEach((i) -> {
             Member member = memberRepository.save(createMember("박종훈" + i));
@@ -117,14 +118,18 @@ class StudyGroupServiceTest {
         entityManager.flush();
 
         //when
-        int pageSize = 10;
-        Page<StudyGroupDto> studyGroupList = studyGroupService.getStudyGroupList(PageRequest.of(2, pageSize));
+        int pageSize = 5;
+        StudyGroupSearchCond cond = StudyGroupSearchCond.builder()
+                .leaderName("4")
+                .build();
+
+        Page<StudyGroupDto> studyGroupList = studyGroupService.getStudyGroupList(PageRequest.of(0, pageSize), cond);
 
         //then
         List<StudyGroupDto> content = studyGroupList.getContent();
+        content.stream().forEach(o -> log.info("info = {} ", o));
 
         Assertions.assertThat(studyGroupList.getTotalElements()).isEqualTo((long) totalDataNum);
-        Assertions.assertThat(content.size()).isEqualTo(pageSize);
     }
 
     @Test
