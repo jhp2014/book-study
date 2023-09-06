@@ -19,14 +19,8 @@ public class Enrollment {
     @Column(name = "enrollment_id")
     private Long id;
 
-    @CreatedDate
-    private LocalDateTime enrollDate;
-
     @Enumerated(EnumType.STRING)
     private EnrollStatus status;
-
-    @Column(name = "enrollment_price")
-    private Long price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -36,17 +30,35 @@ public class Enrollment {
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
-    @Builder
-    public Enrollment(Long price, Member member, StudyGroup studyGroup, Payment payment) {
-        this.price = price;
+    @Builder(access = AccessLevel.PRIVATE)
+    private Enrollment(Member member, StudyGroup studyGroup, Payment payment) {
         this.member = member;
         this.studyGroup = studyGroup;
         this.payment = payment;
+
         this.status = EnrollStatus.CREATED;
+    }
+
+    public static Enrollment of(Member member, StudyGroup studyGroup) {
+        // Study Group 인원 체크 해야한다.
+        // 이때 동시성 문제 고려 해야한다.
+        Payment payment = Payment.createPayment(studyGroup, member);
+
+        Enrollment enrollment = Enrollment.builder()
+                .member(member)
+                .studyGroup(studyGroup)
+                .payment(payment)
+                .build();
+
+        //양방향 연관관계 설정
+        studyGroup.getEnrollments().add(enrollment);
+
+        return enrollment;
+
     }
 
     public void cancel() {

@@ -14,7 +14,9 @@ public enum ErrorMessage {
     INCORRECT_HEADER("올바르지 않은 헤더"),
     NO_ENTITY("해당 값의 Entity 없음"),
     STUDY_CANCEL_FAIL("스터디 그룹이 시작해서 취소할 수 없습니다."),
-    REFUND_FAIL("환불 실패");
+    REFUND_FAIL("환불 실패"),
+    NOT_ENOUGH_POINT("포인트 부족"),
+    FULL_STUDY("현재 스터디 인원이 가득 찼습니다.");
 
     private String message;
 }

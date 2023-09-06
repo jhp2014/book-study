@@ -1,22 +1,24 @@
 package com.project.bookstudy.study_group.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"enrollments"})
 public class StudyGroup {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "study_group_id")
     private Long id;
     private String subject;
@@ -31,6 +33,11 @@ public class StudyGroup {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leader_id")
     private Member leader;
+
+    //동시셩 이슈 발생할 수 있다. → Redis 적용을 통해 해결할 예정
+    @OneToMany(mappedBy = "studyGroup", cascade = CascadeType.ALL)
+    private List<Enrollment> enrollments = new ArrayList<>();
+
 
     @Builder
     public StudyGroup(String subject, String contents, String contentsDetail, LocalDateTime studyStartAt, LocalDateTime studyEndAt, int maxSize, Long price, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt, Member leader) {
@@ -61,6 +68,11 @@ public class StudyGroup {
                 .build();
     }
 
+    public boolean isApplicable() {
+        if (enrollments.size() < maxSize) return true;
+        return false;
+    }
+
     public void update(UpdateStudyGroupParam param) {
         this.subject = param.getSubject();
         this.contents = param.getContents();
@@ -75,8 +87,7 @@ public class StudyGroup {
 
     public void delete() {
         //1. 스터디 시작 전에만 환불 가능
-
-
+        //구체적으로 삭제를 어떻게 구현할지 생각해야한다.
         this.subject = null;
         this.contents = null;
         this.contentsDetail = null;
@@ -89,5 +100,9 @@ public class StudyGroup {
     public boolean isStarted() {
         if (LocalDateTime.now().isAfter(studyStartAt)) return true;
         return false;
+    }
+
+    public void setContents(String contents) {
+        this.contents = contents;
     }
 }

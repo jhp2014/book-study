@@ -1,5 +1,6 @@
 package com.project.bookstudy.member.domain;
 
+import com.project.bookstudy.common.exception.ErrorMessage;
 import lombok.*;
 
 import javax.persistence.*;
@@ -43,5 +44,10 @@ public class Member extends BaseTimeEntity {
 
     public void chargePoint(Long point) {
         this.point += point;
+    }
+
+    public void usePoint(Long point) {
+        if (this.point < point) throw new IllegalStateException(ErrorMessage.NOT_ENOUGH_POINT.getMessage());
+        this.point -= point;
     }
 }

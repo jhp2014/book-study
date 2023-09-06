@@ -66,10 +66,13 @@ public class StudyGroupService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
         if (studyGroup.isStarted()) {
-            throw new IllegalStateException(ErrorMessage.STUDY_CANCEL_FAIL.getMessage());}
+            throw new IllegalStateException(ErrorMessage.STUDY_CANCEL_FAIL.getMessage());
+        }
 
         List<Enrollment> enrollments = enrollmentRepository.findByStudyGroupIdWithPaymentWithMember(studyGroup.getId());
         enrollments.stream()
                 .forEach((e) -> e.cancel());
+
+        //Study group 삭제 시 어떻게 처리 할지 정리 해야한다.
     }
 }
