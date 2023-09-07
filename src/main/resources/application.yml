@@ -4,7 +4,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create-drop #로컬에서만 사용!
+      default_batch_fetch_size: 100
+
     properties:
       hibernate:
         format_sql: true
@@ -50,6 +52,3 @@ logging:
 
 jwt:
   secret: fdsafdsajkeawfdjskalewdsafdsajkeawfdjskalewdsafdsajkeawfdjskalew2312!@!##@!
-
-
-

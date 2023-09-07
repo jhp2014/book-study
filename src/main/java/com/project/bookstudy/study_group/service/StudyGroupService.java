@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -42,7 +41,9 @@ public class StudyGroupService {
     }
 
     public StudyGroupDto getStudyGroup(Long studyGroupId) {
-        StudyGroup studyGroup = studyGroupRepository.findByIdWithLeader(studyGroupId);
+        StudyGroup studyGroup = studyGroupRepository.findByIdWithLeader(studyGroupId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+
         StudyGroupDto studyGroupDto = StudyGroupDto.fromEntity(studyGroup, studyGroup.getLeader());
         return studyGroupDto;
     }

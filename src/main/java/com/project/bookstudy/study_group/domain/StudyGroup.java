@@ -31,6 +31,7 @@ public class StudyGroup {
     private Long price;
     private LocalDateTime recruitmentStartAt;
     private LocalDateTime recruitmentEndAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leader_id")
     private Member leader;
@@ -74,6 +75,7 @@ public class StudyGroup {
         long count = enrollments.stream()
                 .filter((i) -> i.getStatus() == EnrollStatus.RESERVED)
                 .count();
+
         if ( count < maxSize) return true;
         return false;
     }

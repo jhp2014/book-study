@@ -57,7 +57,7 @@ public class Payment {
         return payment;
     }
 
-    public void refund() {
+    public void refund() throws IllegalStateException {
         if (status != PaymentStatus.SUCCESS) throw new IllegalStateException(ErrorMessage.REFUND_FAIL.getMessage());
 
         member.chargePoint(paymentPrice);

@@ -5,9 +5,11 @@ import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
+
 public interface CustomStudyGroupRepository {
 
-    StudyGroup findByIdWithLeader(Long id);
-    StudyGroup findByIdWithEnrollments(Long id);
+    Optional<StudyGroup> findByIdWithLeader(Long id);
+    Optional<StudyGroup> findByIdWithEnrollments(Long id);
     Page<StudyGroup> searchStudyGroup(Pageable pageable, StudyGroupSearchCond cond);
 }

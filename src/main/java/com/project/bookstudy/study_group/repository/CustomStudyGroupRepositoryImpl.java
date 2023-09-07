@@ -1,8 +1,7 @@
 package com.project.bookstudy.study_group.repository;
 
-import com.project.bookstudy.member.domain.QMember;
 import com.project.bookstudy.study_group.domain.EnrollStatus;
-import com.project.bookstudy.study_group.domain.QEnrollment;
+import com.project.bookstudy.study_group.domain.QStudyGroup;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.bookstudy.member.domain.QMember.member;
 import static com.project.bookstudy.study_group.domain.QEnrollment.enrollment;
@@ -24,21 +24,26 @@ public class CustomStudyGroupRepositoryImpl implements CustomStudyGroupRepositor
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public StudyGroup findByIdWithEnrollments(Long id) {
-        return jpaQueryFactory
-                .selectFrom(studyGroup)
-                .join(studyGroup.enrollments, enrollment).fetchJoin()
+    public Optional<StudyGroup> findByIdWithEnrollments(Long id) {
+
+        StudyGroup studyGroup = jpaQueryFactory
+                .selectFrom(QStudyGroup.studyGroup)
+                .join(QStudyGroup.studyGroup.enrollments, enrollment).fetchJoin()
                 .where(enrollment.status.eq(EnrollStatus.RESERVED))
                 .fetchOne();
+
+        return Optional.ofNullable(studyGroup);
     }
 
     @Override
-    public StudyGroup findByIdWithLeader(Long id) {
-        return jpaQueryFactory
-                .selectFrom(studyGroup)
-                .where(studyGroup.id.eq(id))
-                .join(studyGroup.leader, member).fetchJoin()
+    public Optional<StudyGroup> findByIdWithLeader(Long id) {
+        StudyGroup studyGroup = jpaQueryFactory
+                .selectFrom(QStudyGroup.studyGroup)
+                .where(QStudyGroup.studyGroup.id.eq(id))
+                .join(QStudyGroup.studyGroup.leader, member).fetchJoin()
                 .fetchOne();
+
+        return Optional.ofNullable(studyGroup);
     }
 
     @Override
