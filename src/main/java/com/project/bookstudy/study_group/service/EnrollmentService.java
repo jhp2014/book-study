@@ -22,11 +22,12 @@ public class EnrollmentService {
 
     @Transactional
     public Long enroll(CreateEnrollmentRequest request) {
-        StudyGroup studyGroup = studyGroupRepository.findById(request.getStudyGroupId())
+        StudyGroup studyGroup = studyGroupRepository.findByIdWithEnrollments(request.getStudyGroupId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+
 
         if (!studyGroup.isApplicable()) {
             throw new IllegalStateException(ErrorMessage.FULL_STUDY.getMessage());

@@ -40,7 +40,7 @@ public class Enrollment {
         this.studyGroup = studyGroup;
         this.payment = payment;
 
-        this.status = EnrollStatus.CREATED;
+        this.status = EnrollStatus.RESERVED;
     }
 
     public static Enrollment of(Member member, StudyGroup studyGroup) {
@@ -62,7 +62,7 @@ public class Enrollment {
     }
 
     public void cancel() {
-        if (status == EnrollStatus.PAID) { payment.refund();}
+        if (status == EnrollStatus.RESERVED) { payment.refund();}
         status = EnrollStatus.CANCEL;
     }
 }

@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -69,7 +70,11 @@ public class StudyGroup {
     }
 
     public boolean isApplicable() {
-        if (enrollments.size() < maxSize) return true;
+
+        long count = enrollments.stream()
+                .filter((i) -> i.getStatus() == EnrollStatus.RESERVED)
+                .count();
+        if ( count < maxSize) return true;
         return false;
     }
 

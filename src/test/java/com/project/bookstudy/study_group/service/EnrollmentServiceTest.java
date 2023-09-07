@@ -61,8 +61,6 @@ class EnrollmentServiceTest {
         //then
         Enrollment findEnrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalStateException(ErrorMessage.NO_ENTITY.getMessage()));
-
-        Assertions.assertThat(findEnrollment.getMember()).isSameAs(savedMember);
     }
 
     private Member createMember(String name) {

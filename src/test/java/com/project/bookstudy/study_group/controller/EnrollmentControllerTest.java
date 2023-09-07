@@ -66,6 +66,7 @@ class EnrollmentControllerTest {
                 .build();
         String jsonRequest = objectMapper.writeValueAsString(request);
         log.info(">>>>>>>>> {}", jsonRequest);
+
         //when
         ResultActions resultActions = mockMvc.perform(
                 post("/enrollment")
