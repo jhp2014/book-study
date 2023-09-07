@@ -53,8 +53,8 @@ public class StudyGroupService {
     }
 
     @Transactional
-    public void updateStudyGroup(Long id, UpdateStudyGroupParam updateParam) {
-        StudyGroup studyGroup = studyGroupRepository.findById(id)
+    public void updateStudyGroup(UpdateStudyGroupParam updateParam) {
+        StudyGroup studyGroup = studyGroupRepository.findById(updateParam.getId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
         studyGroup.update(updateParam);

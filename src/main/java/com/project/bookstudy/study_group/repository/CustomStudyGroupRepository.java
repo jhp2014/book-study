@@ -8,5 +8,6 @@ import org.springframework.data.domain.Pageable;
 public interface CustomStudyGroupRepository {
 
     StudyGroup findByIdWithLeader(Long id);
+    StudyGroup findByIdWithEnrollments(Long id);
     Page<StudyGroup> searchStudyGroup(Pageable pageable, StudyGroupSearchCond cond);
 }

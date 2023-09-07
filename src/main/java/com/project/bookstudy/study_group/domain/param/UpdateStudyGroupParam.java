@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 public class UpdateStudyGroupParam {
+
+    private Long id;
     private String subject;
     private Long price;
     private String contents;
@@ -18,7 +20,8 @@ public class UpdateStudyGroupParam {
     private LocalDateTime recruitmentEndAt;
 
     @Builder
-    private UpdateStudyGroupParam(String subject, String contents, String contentsDetail, int maxSize, Long price, LocalDateTime studyStartAt, LocalDateTime studyEndAt, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt) {
+    private UpdateStudyGroupParam(Long id, String subject, String contents, String contentsDetail, int maxSize, Long price, LocalDateTime studyStartAt, LocalDateTime studyEndAt, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt) {
+        this.id = id;
         this.subject = subject;
         this.contents = contents;
         this.contentsDetail = contentsDetail;

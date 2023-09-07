@@ -1,6 +1,16 @@
 문제) Token Response Setting 하는 부분이 자꾸 중복 된다.
 해결) ResponseUtils 생성 해서 공통화
 
+
 문제) Refresh Token을 Header에서 받는다. 
 문제) Refresh Token 응답 시, HttpOnly Cookie에 응답을 주어야 할것 같다.
 
+
+문제) 스터디 그룹 Delete 어떻게 하는지 설정해야한다.
+
+문제) 스터디 수정 POST > PUT으로 변경
+문제) Cascade 옵션 설정할 수 있는 곳은 설정
+
+문제) 스터디 그룹 생성 시 동시성 이슈 Redis로 해결해야한다.
+
+문제) 스터디 그룹 생성 시 같은 멤버가 2번 신청할 수 없게 해야한다.

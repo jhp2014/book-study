@@ -141,10 +141,10 @@ class StudyGroupServiceTest {
         CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").getCreateStudyGroupParam();
         StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(member, param));
 
-        UpdateStudyGroupParam updateParam = getUpdateStudyGroupRequest("update_subject").getUpdateStudyGroupParam();
+        UpdateStudyGroupParam updateParam = getUpdateStudyGroupRequest("update_subject", saveStudyGroup.getId()).getUpdateStudyGroupParam();
 
         //when
-        studyGroupService.updateStudyGroup(saveStudyGroup.getId(), updateParam);
+        studyGroupService.updateStudyGroup(updateParam);
         entityManager.flush();
 
         //then
@@ -197,7 +197,7 @@ class StudyGroupServiceTest {
         return request;
     }
 
-    private UpdateStudyGroupRequest getUpdateStudyGroupRequest(String subject) {
+    private UpdateStudyGroupRequest getUpdateStudyGroupRequest(String subject, Long id) {
 
         String contents = "update_contests";
         String contestsDetail = "update_detail";
@@ -210,6 +210,7 @@ class StudyGroupServiceTest {
         LocalDateTime end = start.plusDays(3);
 
         UpdateStudyGroupRequest request = UpdateStudyGroupRequest.builder()
+                .id(id)
                 .maxSize(maxSize)
                 .contents(contents)
                 .subject(subject)

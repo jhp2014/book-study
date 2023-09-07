@@ -1,6 +1,8 @@
 package com.project.bookstudy.study_group.repository;
 
 import com.project.bookstudy.member.domain.QMember;
+import com.project.bookstudy.study_group.domain.EnrollStatus;
+import com.project.bookstudy.study_group.domain.QEnrollment;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -14,11 +16,21 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 import static com.project.bookstudy.member.domain.QMember.member;
+import static com.project.bookstudy.study_group.domain.QEnrollment.enrollment;
 import static com.project.bookstudy.study_group.domain.QStudyGroup.studyGroup;
 
 @RequiredArgsConstructor
 public class CustomStudyGroupRepositoryImpl implements CustomStudyGroupRepository {
     private final JPAQueryFactory jpaQueryFactory;
+
+    @Override
+    public StudyGroup findByIdWithEnrollments(Long id) {
+        return jpaQueryFactory
+                .selectFrom(studyGroup)
+                .join(studyGroup.enrollments, enrollment).fetchJoin()
+                .where(enrollment.status.eq(EnrollStatus.RESERVED))
+                .fetchOne();
+    }
 
     @Override
     public StudyGroup findByIdWithLeader(Long id) {

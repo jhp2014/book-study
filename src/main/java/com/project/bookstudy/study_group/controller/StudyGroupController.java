@@ -41,11 +41,9 @@ public class StudyGroupController {
         return studyGroupService.getStudyGroup(studyId);
     }
 
-    @PostMapping("/study-group/{id}")
-    public void updateStudyGroup(@PathVariable("id") Long studyId
-            , @RequestBody UpdateStudyGroupRequest request) {
-
-        studyGroupService.updateStudyGroup(studyId, request.getUpdateStudyGroupParam());
+    @PutMapping("/study-group")
+    public void updateStudyGroup(@RequestBody UpdateStudyGroupRequest request) {
+        studyGroupService.updateStudyGroup(request.getUpdateStudyGroupParam());
 
     }
 }

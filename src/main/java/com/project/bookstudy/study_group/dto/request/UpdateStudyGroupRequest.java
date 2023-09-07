@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 public class UpdateStudyGroupRequest {
 
+    private Long id;
     private int maxSize;
     private String contents;
     private String subject;
@@ -34,7 +35,8 @@ public class UpdateStudyGroupRequest {
 
 
     @Builder
-    public UpdateStudyGroupRequest(int maxSize, String contents, String subject, Long price, String contentsDetail, LocalDateTime studyStartAt, LocalDateTime studyEndAt, LocalDateTime recruitmentEndAt, LocalDateTime recruitmentStartAt) {
+    public UpdateStudyGroupRequest(Long id, int maxSize, String contents, String subject, Long price, String contentsDetail, LocalDateTime studyStartAt, LocalDateTime studyEndAt, LocalDateTime recruitmentEndAt, LocalDateTime recruitmentStartAt) {
+        this.id = id;
         this.maxSize = maxSize;
         this.contents = contents;
         this.subject = subject;
@@ -48,6 +50,7 @@ public class UpdateStudyGroupRequest {
 
     public UpdateStudyGroupParam getUpdateStudyGroupParam() {
         return UpdateStudyGroupParam.builder()
+                .id(id)
                 .maxSize(maxSize)
                 .contents(contents)
                 .subject(subject)

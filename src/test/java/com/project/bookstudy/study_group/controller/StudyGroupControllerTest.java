@@ -14,9 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -29,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,9 +38,12 @@ class StudyGroupControllerTest {
     private StudyGroupService studyGroupService;
     @Autowired
     private StudyGroupRepository studyGroupRepository;
-    @Autowired private MemberRepository memberRepository;
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private MemberRepository memberRepository;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @DisplayName("POST /study-group 스터디 그룹 생성 성공")
@@ -81,7 +81,7 @@ class StudyGroupControllerTest {
 
         //when
         ResultActions resultActions = mockMvc
-                .perform(get("/study-group/{id}",studyGroup.getId())
+                .perform(get("/study-group/{id}", studyGroup.getId())
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andDo(MockMvcResultHandlers.print());
 
@@ -104,7 +104,7 @@ class StudyGroupControllerTest {
         //given
         int totalDataNum = 10;
         List<StudyGroup> studyGroups = new ArrayList<>();
-        IntStream.range(0,totalDataNum).forEach((i) -> {
+        IntStream.range(0, totalDataNum).forEach((i) -> {
             Member member = memberRepository.save(createMember("박종훈" + i));
             CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제" + i).getCreateStudyGroupParam();
             StudyGroup savedGroup = studyGroupRepository.save(StudyGroup.from(member, param));
@@ -128,7 +128,7 @@ class StudyGroupControllerTest {
     }
 
     @Test
-    @DisplayName("POST /study-group/{id} 스터디 그룹 수정 성공")
+    @DisplayName("POST /study-group 스터디 그룹 수정 성공")
     @Transactional
     void updateStudySuccess() throws Exception {
         //given
@@ -136,12 +136,12 @@ class StudyGroupControllerTest {
         CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
         StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.getCreateStudyGroupParam()));
 
-        UpdateStudyGroupRequest updateStudyGroupRequest = getUpdateStudyGroupRequest("update_subject");
+        UpdateStudyGroupRequest updateStudyGroupRequest = getUpdateStudyGroupRequest("update_subject", studyGroup.getId());
         String jsonRequest = objectMapper.writeValueAsString(updateStudyGroupRequest);
 
         //when
         ResultActions resultActions = mockMvc
-                .perform(post("/study-group/{id}",studyGroup.getId())
+                .perform(put("/study-group")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest)
                         .characterEncoding(StandardCharsets.UTF_8))
@@ -150,7 +150,6 @@ class StudyGroupControllerTest {
         //then
         resultActions.andExpect(status().isOk());
     }
-
 
 
     private Member createMember(String name) {
@@ -190,7 +189,7 @@ class StudyGroupControllerTest {
                 .build();
     }
 
-    private UpdateStudyGroupRequest getUpdateStudyGroupRequest(String subject) {
+    private UpdateStudyGroupRequest getUpdateStudyGroupRequest(String subject, Long id) {
 
         String contents = "update_contests";
         String contestsDetail = "update_detail";
@@ -203,6 +202,7 @@ class StudyGroupControllerTest {
         LocalDateTime end = start.plusDays(3);
 
         UpdateStudyGroupRequest request = UpdateStudyGroupRequest.builder()
+                .id(id)
                 .maxSize(maxSize)
                 .contents(contents)
                 .subject(subject)
