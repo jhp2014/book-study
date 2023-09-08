@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
@@ -24,7 +25,7 @@ public class EnrollmentService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long enroll(CreateEnrollmentRequest request) throws IllegalStateException{
+    public Long enroll(CreateEnrollmentRequest request){
 
         //Collection Fetch Join → Batch Size 적용 고려
         StudyGroup studyGroup = studyGroupRepository.findByIdWithEnrollments(request.getStudyGroupId())
@@ -44,18 +45,17 @@ public class EnrollmentService {
     }
 
     @Transactional
-    public void cancel(Long enrollmentId) throws IllegalStateException{
+    public void cancel(Long enrollmentId) {
 
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
-        if (!enrollment.getStudyGroup().isStarted()) {
+        if (enrollment.getStudyGroup().isStarted()) {
             throw new IllegalStateException(ErrorMessage.STUDY_CANCEL_FAIL.getMessage());
         }
         enrollment.cancel();
     }
 
-    @Transactional(readOnly = true)
     public EnrollmentDto getEnrollment(Long enrollmentId) {
         Enrollment enrollment = enrollmentRepository.findByIdWithAll(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
@@ -65,7 +65,6 @@ public class EnrollmentService {
         return enrollmentDto;
     }
 
-    @Transactional(readOnly = true)
     public Page<EnrollmentDto> getEnrollmentList(Pageable pageable, Long memberId) {
         Page<Enrollment> enrollments = enrollmentRepository.searchEnrollment(pageable, memberId);
         Page<EnrollmentDto> enrollmentDtoList = enrollments

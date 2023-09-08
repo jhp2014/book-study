@@ -77,7 +77,7 @@ class StudyGroupControllerTest {
         //given
         Member member = memberRepository.save(createMember("박종훈"));
         CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
-        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.getCreateStudyGroupParam()));
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
 
         //when
         ResultActions resultActions = mockMvc
@@ -106,7 +106,7 @@ class StudyGroupControllerTest {
         List<StudyGroup> studyGroups = new ArrayList<>();
         IntStream.range(0, totalDataNum).forEach((i) -> {
             Member member = memberRepository.save(createMember("박종훈" + i));
-            CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제" + i).getCreateStudyGroupParam();
+            CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제" + i).toStudyGroupParam();
             StudyGroup savedGroup = studyGroupRepository.save(StudyGroup.from(member, param));
             studyGroups.add(savedGroup);
         });
@@ -134,7 +134,7 @@ class StudyGroupControllerTest {
         //given
         Member member = memberRepository.save(createMember("박종훈"));
         CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
-        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.getCreateStudyGroupParam()));
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
 
         UpdateStudyGroupRequest updateStudyGroupRequest = getUpdateStudyGroupRequest("update_subject", studyGroup.getId());
         String jsonRequest = objectMapper.writeValueAsString(updateStudyGroupRequest);

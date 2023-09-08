@@ -20,6 +20,7 @@ public class Payment {
     private Long id;
 
     private LocalDateTime paymentDate;
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     private Long price;
@@ -57,10 +58,10 @@ public class Payment {
         return payment;
     }
 
-    public void refund() throws IllegalStateException {
-        if (status != PaymentStatus.SUCCESS) throw new IllegalStateException(ErrorMessage.REFUND_FAIL.getMessage());
+    public Long refund() {
+        if (status == PaymentStatus.REFUNDED) return 0L;
 
-        member.chargePoint(paymentPrice);
         this.status = PaymentStatus.REFUNDED;
+        return paymentPrice;
     }
 }

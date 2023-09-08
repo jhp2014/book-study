@@ -1,6 +1,7 @@
 package com.project.bookstudy.study_group.repository;
 
-import com.project.bookstudy.study_group.domain.EnrollStatus;
+import com.project.bookstudy.member.domain.QMember;
+import com.project.bookstudy.study_group.domain.QPayment;
 import com.project.bookstudy.study_group.domain.QStudyGroup;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 import static com.project.bookstudy.member.domain.QMember.member;
 import static com.project.bookstudy.study_group.domain.QEnrollment.enrollment;
+import static com.project.bookstudy.study_group.domain.QPayment.payment;
 import static com.project.bookstudy.study_group.domain.QStudyGroup.studyGroup;
 
 @RequiredArgsConstructor
@@ -28,8 +30,20 @@ public class CustomStudyGroupRepositoryImpl implements CustomStudyGroupRepositor
 
         StudyGroup studyGroup = jpaQueryFactory
                 .selectFrom(QStudyGroup.studyGroup)
-                .join(QStudyGroup.studyGroup.enrollments, enrollment).fetchJoin()
-                .where(enrollment.status.eq(EnrollStatus.RESERVED))
+                .leftJoin(QStudyGroup.studyGroup.enrollments, enrollment).fetchJoin()
+                .fetchOne();
+
+        return Optional.ofNullable(studyGroup);
+    }
+
+    @Override
+    public Optional<StudyGroup> findByIdWithEnrollmentWithAll(Long id) {
+
+        StudyGroup studyGroup = jpaQueryFactory
+                .selectFrom(QStudyGroup.studyGroup)
+                .leftJoin(QStudyGroup.studyGroup.enrollments, enrollment).fetchJoin()
+                .join(enrollment.member, member).fetchJoin()
+                .join(enrollment.payment, payment).fetchJoin()
                 .fetchOne();
 
         return Optional.ofNullable(studyGroup);

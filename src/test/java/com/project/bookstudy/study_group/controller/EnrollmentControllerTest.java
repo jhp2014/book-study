@@ -1,6 +1,5 @@
 package com.project.bookstudy.study_group.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
@@ -19,11 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
@@ -57,7 +52,7 @@ class EnrollmentControllerTest {
         member.chargePoint(1000000L);
         memberRepository.save(member);
 
-        CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").getCreateStudyGroupParam();
+        CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").toStudyGroupParam();
         StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(member, param));
 
         CreateEnrollmentRequest request = CreateEnrollmentRequest.builder()

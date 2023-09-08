@@ -10,7 +10,6 @@ import com.project.bookstudy.study_group.dto.request.CreateEnrollmentRequest;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.EnrollmentRepository;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ class EnrollmentServiceTest {
 
         Member savedMember = memberRepository.save(member);
 
-        CreateStudyGroupParam param = getStudyGroupRequest(savedMember, "스터디 주제").getCreateStudyGroupParam();
+        CreateStudyGroupParam param = getStudyGroupRequest(savedMember, "스터디 주제").toStudyGroupParam();
         StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(savedMember, param));
 
         CreateEnrollmentRequest request = CreateEnrollmentRequest.builder()

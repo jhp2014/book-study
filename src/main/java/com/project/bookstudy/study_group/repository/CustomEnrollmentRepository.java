@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface CustomEnrollmentRepository {
 
-    public List<Enrollment> findByStudyGroupIdWithPaymentWithMember(Long id);
+    public List<Enrollment> findByStudyGroupIdWithMemberAndPayment(Long id);
 
     public Optional<Enrollment> findByIdWithAll(Long id);
 

@@ -32,13 +32,13 @@ public class Enrollment {
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
+
     @Builder(access = AccessLevel.PRIVATE)
     private Enrollment(Member member, StudyGroup studyGroup, Payment payment) {
         this.member = member;
         this.studyGroup = studyGroup;
         this.payment = payment;
 
-        this.status = EnrollStatus.RESERVED;
     }
 
     public static Enrollment createEnrollment(Member member, StudyGroup studyGroup) {
@@ -60,7 +60,10 @@ public class Enrollment {
     }
 
     public void cancel() {
-        if (status == EnrollStatus.RESERVED) { payment.refund();}
+        if (status == EnrollStatus.CANCEL) return;
+
+        Long refundPrice = payment.refund();
+        member.chargePoint(refundPrice);
         status = EnrollStatus.CANCEL;
     }
 }

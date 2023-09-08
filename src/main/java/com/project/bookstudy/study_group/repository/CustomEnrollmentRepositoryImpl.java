@@ -22,11 +22,11 @@ public class CustomEnrollmentRepositoryImpl implements CustomEnrollmentRepositor
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Enrollment> findByStudyGroupIdWithPaymentWithMember(Long id) {
+    public List<Enrollment> findByStudyGroupIdWithMemberAndPayment(Long id) {
 
          return jpaQueryFactory.selectFrom(enrollment)
                  .join(enrollment.payment, payment).fetchJoin()
-                 .join(payment.member, member).fetchJoin()
+                 .join(enrollment.member, member).fetchJoin()
                 .where(enrollment.studyGroup.id.eq(id))
                 .fetch();
     }

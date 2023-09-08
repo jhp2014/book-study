@@ -46,7 +46,7 @@ public class CreateStudyGroupRequest {
         this.recruitmentEndAt = recruitmentEndAt;
     }
 
-    public CreateStudyGroupParam getCreateStudyGroupParam() {
+    public CreateStudyGroupParam toStudyGroupParam() {
         return CreateStudyGroupParam.builder()
                 .studyStartAt(this.studyStartAt)
                 .studyEndAt(this.studyEndAt)

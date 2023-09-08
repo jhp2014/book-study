@@ -1,21 +1,22 @@
 package com.project.bookstudy.study_group.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"enrollments"})
+@SQLDelete(sql = "UPDATE study_group SET is_deleted = true WHERE study_group_id = ?")
 public class StudyGroup {
 
     @Id
@@ -31,6 +32,8 @@ public class StudyGroup {
     private Long price;
     private LocalDateTime recruitmentStartAt;
     private LocalDateTime recruitmentEndAt;
+
+    private StudyGroupStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leader_id")
@@ -53,6 +56,8 @@ public class StudyGroup {
         this.studyStartAt = studyStartAt;
         this.recruitmentStartAt = recruitmentStartAt;
         this.recruitmentEndAt = recruitmentEndAt;
+
+        this.status = StudyGroupStatus.RECRUITING;
     }
 
     public static StudyGroup from(Member leader, CreateStudyGroupParam studyGroupParam) {
@@ -92,16 +97,13 @@ public class StudyGroup {
         this.recruitmentEndAt = param.getRecruitmentEndAt();
     }
 
-    public void delete() {
-        //1. 스터디 시작 전에만 환불 가능
-        //구체적으로 삭제를 어떻게 구현할지 생각해야한다.
-        this.subject = null;
-        this.contents = null;
-        this.contentsDetail = null;
-        this.studyStartAt = null;
-        this.studyEndAt = null;
-        this.recruitmentStartAt = null;
-        this.recruitmentEndAt = null;
+    public void cancel() {
+        if (isStarted()) throw new IllegalStateException(ErrorMessage.STUDY_CANCEL_FAIL.getMessage());
+
+        enrollments.stream()
+                .forEach(e -> e.cancel());
+
+        status = StudyGroupStatus.CANCEL;
     }
 
     public boolean isStarted() {
@@ -109,7 +111,4 @@ public class StudyGroup {
         return false;
     }
 
-    public void setContents(String contents) {
-        this.contents = contents;
-    }
 }

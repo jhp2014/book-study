@@ -3,13 +3,15 @@ package com.project.bookstudy.study_group.service;
 import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
-import com.project.bookstudy.study_group.domain.StudyGroup;
+import com.project.bookstudy.study_group.domain.*;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
+import com.project.bookstudy.study_group.dto.request.CreateEnrollmentRequest;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.StudyGroupSearchCond;
 import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
+import com.project.bookstudy.study_group.repository.EnrollmentRepository;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -28,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.*;
+
 @SpringBootTest
 @Slf4j
 class StudyGroupServiceTest {
@@ -41,6 +45,11 @@ class StudyGroupServiceTest {
     @Autowired
     private StudyGroupRepository studyGroupRepository;
 
+    @Autowired
+    private EnrollmentService enrollmentService;
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
 
     @Test
     @DisplayName("StudyGroup 생성 성공")
@@ -51,7 +60,7 @@ class StudyGroupServiceTest {
         CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
 
         //when
-        StudyGroupDto studyGroupDto = studyGroupService.createStudyGroup(request.getMemberId(), request.getCreateStudyGroupParam());
+        StudyGroupDto studyGroupDto = studyGroupService.createStudyGroup(request.getMemberId(), request.toStudyGroupParam());
 
         entityManager.flush();
         entityManager.clear();
@@ -63,19 +72,19 @@ class StudyGroupServiceTest {
 
 
         //then
-        Assertions.assertThat(studyGroup.getId()).isEqualTo(studyGroupDto.getId());
+        assertThat(studyGroup.getId()).isEqualTo(studyGroupDto.getId());
 
-        Assertions.assertThat(studyGroup.getStudyStartAt()).isNotNull();
-        Assertions.assertThat(studyGroup.getStudyEndAt()).isNotNull();
-        Assertions.assertThat(studyGroup.getRecruitmentStartAt()).isNotNull();
-        Assertions.assertThat(studyGroup.getRecruitmentEndAt()).isNotNull();
+        assertThat(studyGroup.getStudyStartAt()).isNotNull();
+        assertThat(studyGroup.getStudyEndAt()).isNotNull();
+        assertThat(studyGroup.getRecruitmentStartAt()).isNotNull();
+        assertThat(studyGroup.getRecruitmentEndAt()).isNotNull();
 
-        Assertions.assertThat(studyGroup.getSubject()).isEqualTo(request.getSubject());
-        Assertions.assertThat(studyGroup.getContents()).isEqualTo(request.getContents());
-        Assertions.assertThat(studyGroup.getContentsDetail()).isEqualTo(request.getContentsDetail());
-        Assertions.assertThat(studyGroup.getPrice()).isEqualTo(request.getPrice());
-        Assertions.assertThat(studyGroup.getMaxSize()).isEqualTo(request.getMaxSize());
-        Assertions.assertThat(studyGroup.getLeader().getId()).isSameAs(member.getId());
+        assertThat(studyGroup.getSubject()).isEqualTo(request.getSubject());
+        assertThat(studyGroup.getContents()).isEqualTo(request.getContents());
+        assertThat(studyGroup.getContentsDetail()).isEqualTo(request.getContentsDetail());
+        assertThat(studyGroup.getPrice()).isEqualTo(request.getPrice());
+        assertThat(studyGroup.getMaxSize()).isEqualTo(request.getMaxSize());
+        assertThat(studyGroup.getLeader().getId()).isSameAs(member.getId());
     }
 
     @Test
@@ -84,7 +93,7 @@ class StudyGroupServiceTest {
     void getStudySuccess() {
         //given
         Member member = memberRepository.save(createMember("박종훈"));
-        CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").getCreateStudyGroupParam();
+        CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").toStudyGroupParam();
         StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(member, param));
 
         entityManager.flush();
@@ -93,12 +102,12 @@ class StudyGroupServiceTest {
         StudyGroupDto findStudyGroup = studyGroupService.getStudyGroup(saveStudyGroup.getId());
 
         //then
-        Assertions.assertThat(findStudyGroup.getLeaderName()).isEqualTo(member.getName());
-        Assertions.assertThat(findStudyGroup.getId()).isEqualTo(saveStudyGroup.getId());
-        Assertions.assertThat(findStudyGroup.getPrice()).isEqualTo(param.getPrice());
-        Assertions.assertThat(findStudyGroup.getContents()).isEqualTo(param.getContents());
-        Assertions.assertThat(findStudyGroup.getContentsDetail()).isEqualTo(param.getContentsDetail());
-        Assertions.assertThat(findStudyGroup.getMaxSize()).isEqualTo(param.getMaxSize());
+        assertThat(findStudyGroup.getLeaderName()).isEqualTo(member.getName());
+        assertThat(findStudyGroup.getId()).isEqualTo(saveStudyGroup.getId());
+        assertThat(findStudyGroup.getPrice()).isEqualTo(param.getPrice());
+        assertThat(findStudyGroup.getContents()).isEqualTo(param.getContents());
+        assertThat(findStudyGroup.getContentsDetail()).isEqualTo(param.getContentsDetail());
+        assertThat(findStudyGroup.getMaxSize()).isEqualTo(param.getMaxSize());
     }
 
     @Test
@@ -110,7 +119,7 @@ class StudyGroupServiceTest {
         List<StudyGroup> studyGroups = new ArrayList<>();
         IntStream.range(0,totalDataNum).forEach((i) -> {
             Member member = memberRepository.save(createMember("박종훈" + i));
-            CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제" + i).getCreateStudyGroupParam();
+            CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제" + i).toStudyGroupParam();
             StudyGroup savedGroup = studyGroupRepository.save(StudyGroup.from(member, param));
             studyGroups.add(savedGroup);
         });
@@ -127,9 +136,43 @@ class StudyGroupServiceTest {
 
         //then
         List<StudyGroupDto> content = studyGroupList.getContent();
-        content.stream().forEach(o -> log.info("info = {} ", o));
 
-        Assertions.assertThat(studyGroupList.getTotalElements()).isEqualTo((long) totalDataNum);
+        assertThat(studyGroupList.getTotalElements()).isEqualTo((long) totalDataNum);
+    }
+
+    @Test
+    @DisplayName("StudyGroup soft 삭제")
+    @Transactional
+    void deleteStudySuccess() {
+        //given
+        Member member1 = memberRepository.save(createMember("박종훈1"));
+        Member member2 = memberRepository.save(createMember("박종훈2"));
+        member2.chargePoint(50000L);
+
+        CreateStudyGroupParam param = getStudyGroupRequest(member1, "스터디 주제").toStudyGroupParam();
+        StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(member1, param));
+
+        CreateEnrollmentRequest request = CreateEnrollmentRequest.builder()
+                .studyGroupId(saveStudyGroup.getId())
+                .memberId(member2.getId()).build();
+
+        Long enrollmentId = enrollmentService.enroll(request);
+        entityManager.flush();
+
+        //when
+        log.info(">>>>>>>>>>> WHEN FLUSH");
+        studyGroupService.cancelStudyGroup(saveStudyGroup.getId());
+        entityManager.flush();
+
+        //then
+        Enrollment enrollment = enrollmentRepository.findByIdWithAll(enrollmentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+
+        assertThat(saveStudyGroup.getStatus()).isEqualTo(StudyGroupStatus.CANCEL);
+        assertThat(enrollment.getStatus()).isEqualTo(EnrollStatus.CANCEL);
+        assertThat(enrollment.getPayment().getStatus()).isEqualTo(PaymentStatus.REFUNDED);
+        assertThat(enrollment.getMember().getPoint()).isEqualTo(member2.getPoint());
+
     }
 
     @Test
@@ -138,7 +181,7 @@ class StudyGroupServiceTest {
     void updateStudySuccess() {
         //given
         Member member = memberRepository.save(createMember("박종훈"));
-        CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").getCreateStudyGroupParam();
+        CreateStudyGroupParam param = getStudyGroupRequest(member, "스터디 주제").toStudyGroupParam();
         StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(member, param));
 
         UpdateStudyGroupParam updateParam = getUpdateStudyGroupRequest("update_subject", saveStudyGroup.getId()).getUpdateStudyGroupParam();
@@ -151,12 +194,13 @@ class StudyGroupServiceTest {
         StudyGroup findStudyGroup = studyGroupRepository.findById(saveStudyGroup.getId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
-        Assertions.assertThat(findStudyGroup.getSubject()).isEqualTo(updateParam.getSubject());
-        Assertions.assertThat(findStudyGroup.getPrice()).isEqualTo(updateParam.getPrice());
-        Assertions.assertThat(findStudyGroup.getContents()).isEqualTo(updateParam.getContents());
-        Assertions.assertThat(findStudyGroup.getContentsDetail()).isEqualTo(updateParam.getContentsDetail());
-        Assertions.assertThat(findStudyGroup.getMaxSize()).isEqualTo(updateParam.getMaxSize());
+        assertThat(findStudyGroup.getSubject()).isEqualTo(updateParam.getSubject());
+        assertThat(findStudyGroup.getPrice()).isEqualTo(updateParam.getPrice());
+        assertThat(findStudyGroup.getContents()).isEqualTo(updateParam.getContents());
+        assertThat(findStudyGroup.getContentsDetail()).isEqualTo(updateParam.getContentsDetail());
+        assertThat(findStudyGroup.getMaxSize()).isEqualTo(updateParam.getMaxSize());
     }
+
 
 
     private Member createMember(String name) {
@@ -174,7 +218,7 @@ class StudyGroupServiceTest {
     private CreateStudyGroupRequest getStudyGroupRequest(Member member, String subject) {
         String contents = "test_contests";
         String contestsDetail = "test_detail";
-        Long price = 100000L;
+        Long price = 1234L;
         int maxSize = 10;
 
         LocalDateTime recruitStart = LocalDateTime.now();
@@ -201,7 +245,7 @@ class StudyGroupServiceTest {
 
         String contents = "update_contests";
         String contestsDetail = "update_detail";
-        Long price = 500000L;
+        Long price = 100030L;
         int maxSize = 50;
 
         LocalDateTime recruitStart = LocalDateTime.now();
