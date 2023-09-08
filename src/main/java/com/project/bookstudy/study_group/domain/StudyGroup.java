@@ -16,7 +16,6 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"enrollments"})
-@SQLDelete(sql = "UPDATE study_group SET is_deleted = true WHERE study_group_id = ?")
 public class StudyGroup {
 
     @Id
