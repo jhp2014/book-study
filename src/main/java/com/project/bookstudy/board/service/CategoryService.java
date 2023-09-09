@@ -9,6 +9,7 @@ import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.sql.Update;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +50,7 @@ public class CategoryService {
                 .stream()
                 .map(CategoryDto::fromEntity)
                 .collect(Collectors.toList());
+
         return categoryDtoList;
     }
 
@@ -67,11 +69,15 @@ public class CategoryService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
-        Category parent = categoryRepository
-                .findById(request.getParentCategoryId())
-                .orElse(null);
+        category.update(request.getSubject(), toUpdateParentCategory(request));
+    }
 
-        category.updateSubject(request.getSubject());
-        category.changeParentCategory(parent);
+    private Category toUpdateParentCategory(UpdateCategoryRequest request) {
+        if (request.getParentCategoryId() == null) return null;
+
+        Category parentCategory = categoryRepository.findById(request.getParentCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+
+        return parentCategory;
     }
 }

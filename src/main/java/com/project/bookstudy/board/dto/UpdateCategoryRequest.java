@@ -13,7 +13,8 @@ public class UpdateCategoryRequest {
     private String subject;
 
     @Builder
-    private UpdateCategoryRequest(Long parentCategoryId, String subject) {
+    private UpdateCategoryRequest(Long categoryId, Long parentCategoryId, String subject) {
+        this.categoryId = categoryId;
         this.parentCategoryId = parentCategoryId;
         this.subject = subject;
     }

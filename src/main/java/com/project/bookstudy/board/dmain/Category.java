@@ -58,17 +58,23 @@ public class Category extends BaseTimeEntity{
         return category;
     }
 
-    public void updateSubject(String subject) {
-        if (!StringUtils.hasText(subject)) return;
-
-        this.subject = subject;
+    public void update(String subject, Category parentCategory) {
+        updateSubject(subject);
+        updateParentCategory(parentCategory);
     }
 
-    public void changeParentCategory(Category newParentCategory) {
-        if (newParentCategory == null || newParentCategory.equals(this.parentCategory)) return;
 
-        this.parentCategory.getChildCategories().remove(this);
-        newParentCategory.getChildCategories().add(this);
+    private void updateSubject(String subject) {
+        if (!StringUtils.hasText(subject)) return;
+        this.subject = subject;
+    }
+    private void updateParentCategory(Category newParentCategory) {
+        //change to root category
+        if (newParentCategory == null) {
+            this.parentCategory = null;
+            return;
+        }
         this.parentCategory = newParentCategory;
+
     }
 }
