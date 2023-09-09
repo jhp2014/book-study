@@ -35,15 +35,13 @@ public class Category extends BaseTimeEntity{
     private StudyGroup studyGroup;
     private String subject;
 
-    private Boolean isDeleted;
+    private Boolean isDeleted = Boolean.FALSE;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Category(Category parentCategory, StudyGroup studyGroup, String subject) {
         this.parentCategory = parentCategory;
         this.studyGroup = studyGroup;
         this.subject = subject;
-
-        this.isDeleted = false;
     }
 
     public static Category from(Category parentCategory, StudyGroup studyGroup, String subject) {
@@ -67,6 +65,7 @@ public class Category extends BaseTimeEntity{
     private void updateSubject(String subject) {
         if (!StringUtils.hasText(subject)) return;
         this.subject = subject;
+
     }
     private void updateParentCategory(Category newParentCategory) {
         //change to root category

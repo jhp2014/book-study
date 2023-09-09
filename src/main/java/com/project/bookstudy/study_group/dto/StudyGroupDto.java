@@ -44,7 +44,7 @@ public class StudyGroupDto {
         this.leaderName = leaderName;
     }
 
-    public static StudyGroupDto fromEntity(StudyGroup studyGroup, Member leader) {
+    public static StudyGroupDto fromEntity(StudyGroup studyGroup) {
         return StudyGroupDto.builder()
                 .id(studyGroup.getId())
                 .subject(studyGroup.getSubject())
@@ -57,8 +57,8 @@ public class StudyGroupDto {
                 .maxSize(studyGroup.getMaxSize())
                 .price(studyGroup.getPrice())
                 .status(studyGroup.getStatus())
-                .leaderId(leader.getId())
-                .leaderName(leader.getName())
+                .leaderId(studyGroup.getLeader().getId())
+                .leaderName(studyGroup.getLeader().getName())
                 .build();
     }
 }

@@ -61,7 +61,7 @@ public class CategoryService {
         categoryRepository.delete(category);
 
         //해당 카테고리의 모든 게시물도 삭제 되어야 한다.
-        //dfs 사용해야 할 듯
+        //dfs 사용해야 할듯
     }
 
     @Transactional

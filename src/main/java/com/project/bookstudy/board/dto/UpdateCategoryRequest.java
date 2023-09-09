@@ -10,6 +10,7 @@ public class UpdateCategoryRequest {
 
     private Long categoryId;
     private Long parentCategoryId;
+    private Boolean toRootCategory;
     private String subject;
 
     @Builder

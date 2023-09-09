@@ -30,7 +30,7 @@ public class StudyGroupService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
         StudyGroup savedStudyGroup = studyGroupRepository.save(StudyGroup.from(member, studyGroupParam));
-        StudyGroupDto studyGroupDto = StudyGroupDto.fromEntity(savedStudyGroup, member);
+        StudyGroupDto studyGroupDto = StudyGroupDto.fromEntity(savedStudyGroup);
         return studyGroupDto;
     }
 
@@ -38,13 +38,13 @@ public class StudyGroupService {
         StudyGroup studyGroup = studyGroupRepository.findByIdWithLeader(studyGroupId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
-        StudyGroupDto studyGroupDto = StudyGroupDto.fromEntity(studyGroup, studyGroup.getLeader());
+        StudyGroupDto studyGroupDto = StudyGroupDto.fromEntity(studyGroup);
         return studyGroupDto;
     }
 
     public Page<StudyGroupDto> getStudyGroupList(Pageable pageable, StudyGroupSearchCond cond) {
-        Page<StudyGroup> studyGroups = studyGroupRepository.searchStudyGroup(pageable, cond);
-        return studyGroups.map(entity -> StudyGroupDto.fromEntity(entity, entity.getLeader()));
+        Page<StudyGroup> studyGroups = studyGroupRepository.searchStudyGroupWithLeader(pageable, cond);
+        return studyGroups.map(StudyGroupDto::fromEntity);
     }
 
     @Transactional

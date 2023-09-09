@@ -61,7 +61,7 @@ public class CustomStudyGroupRepositoryImpl implements CustomStudyGroupRepositor
     }
 
     @Override
-    public Page<StudyGroup> searchStudyGroup(Pageable pageable, StudyGroupSearchCond cond) {
+    public Page<StudyGroup> searchStudyGroupWithLeader(Pageable pageable, StudyGroupSearchCond cond) {
 
         List<StudyGroup> studyGroups = jpaQueryFactory
                 .selectFrom(studyGroup)
