@@ -1,6 +1,7 @@
 package com.project.bookstudy.board.service;
 
 import com.project.bookstudy.board.dmain.Category;
+import com.project.bookstudy.board.dmain.File;
 import com.project.bookstudy.board.dmain.Post;
 import com.project.bookstudy.board.dto.*;
 import com.project.bookstudy.board.repository.CategoryRepository;
@@ -10,14 +11,14 @@ import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
-import jdk.jfr.Frequency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,15 @@ public class PostService {
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
-        Post post = Post.of(request.getContents(), request.getSubject(), studyGroup, member, category);
+
+        List<File> files = request.getFiles()
+                .stream()
+                .map(path -> File.of(path.getFilePath()))
+                .collect(Collectors.toList());
+
+        Post post = Post.of(request.getContents(), request.getSubject(), studyGroup, member, category)
+                .addFiles(files);
+
         Post savePost = postRepository.save(post);
 
         return savePost.getId();
@@ -58,8 +67,9 @@ public class PostService {
     public void deletePost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
-        //댓글까지 다 삭제 되어야 한다. dfs 사용해야하는듯. 양방향 설정해서 cascade로 삭제해도 되지만, batch로 삭제하자
+        //댓글 및 파일까지 다 삭제 되어야 한다. dfs 사용해야하는듯. 양방향 설정해서 cascade로 삭제해도 되지만, batch로 삭제하자
 
+        postRepository.delete(post);    //cascade test
     }
 
     public PostDto getPost(Long postId) {

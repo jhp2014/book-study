@@ -1,7 +1,6 @@
 package com.project.bookstudy.study_group.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,7 +47,7 @@ public class UpdateStudyGroupRequest {
         this.recruitmentStartAt = recruitmentStartAt;
     }
 
-    public UpdateStudyGroupParam getUpdateStudyGroupParam() {
+    public UpdateStudyGroupParam toUpdateStudyGroupParam() {
         return UpdateStudyGroupParam.builder()
                 .id(id)
                 .maxSize(maxSize)

@@ -43,7 +43,7 @@ public class StudyGroupController {
 
     @PutMapping("/study-group")
     public void updateStudyGroup(@RequestBody UpdateStudyGroupRequest request) {
-        studyGroupService.updateStudyGroup(request.getUpdateStudyGroupParam());
+        studyGroupService.updateStudyGroup(request.toUpdateStudyGroupParam());
     }
 
     @DeleteMapping("/study-group/{id}")

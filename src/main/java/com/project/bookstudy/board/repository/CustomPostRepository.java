@@ -8,8 +8,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface CustomPostRepository {
-
     Optional<Post> findByIdWithAll(Long id);
-
     Page<Post> searchPost(Pageable pageable, PostSearchCond cond);
 }

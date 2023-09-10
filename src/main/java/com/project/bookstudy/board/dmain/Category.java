@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"childCategories", "parentCategory"})
 @SQLDelete(sql = "UPDATE category SET is_deleted = true WHERE category_id = ?")
-@Where(clause = "id_deleted = false")
+@Where(clause = "is_deleted = false")
 @EqualsAndHashCode(of = {"id"})
 public class Category extends BaseTimeEntity{
 
@@ -24,7 +24,7 @@ public class Category extends BaseTimeEntity{
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parent_id", nullable = true)
     private Category parentCategory;
 
     @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
@@ -52,7 +52,9 @@ public class Category extends BaseTimeEntity{
                 .build();
 
         //양방향 연관관계
-        parentCategory.getChildCategories().add(category);
+        if (parentCategory != null) {
+            parentCategory.getChildCategories().add(category);
+        }
         return category;
     }
 

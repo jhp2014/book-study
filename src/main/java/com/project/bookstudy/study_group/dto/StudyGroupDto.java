@@ -4,6 +4,7 @@ import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.domain.StudyGroupStatus;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 

@@ -35,6 +35,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
         return Optional.ofNullable(result);
     }
 
+    @Override
     public Page<Post> searchPost(Pageable pageable, PostSearchCond cond) {
         List<Post> posts = jpaQueryFactory.selectFrom(post)
                 .join(post.studyGroup, studyGroup).fetchJoin()
