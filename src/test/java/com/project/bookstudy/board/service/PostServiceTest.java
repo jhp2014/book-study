@@ -1,36 +1,34 @@
 package com.project.bookstudy.board.service;
 
-import com.project.bookstudy.board.dmain.Category;
-import com.project.bookstudy.board.dmain.Post;
-import com.project.bookstudy.board.dto.CreateCategoryRequest;
-import com.project.bookstudy.board.dto.CreatePostRequest;
-import com.project.bookstudy.board.repository.CategoryRepository;
-import com.project.bookstudy.board.repository.FileRepository;
-import com.project.bookstudy.board.repository.PostRepository;
+import com.project.bookstudy.TestDataProvider;
+import com.project.bookstudy.board.domain.File;
+import com.project.bookstudy.board.domain.Category;
+import com.project.bookstudy.board.domain.Post;
+import com.project.bookstudy.board.dto.post.CreatePostRequest;
+import com.project.bookstudy.board.dto.post.PostDto;
+import com.project.bookstudy.board.repository.category.CategoryRepository;
+import com.project.bookstudy.board.repository.file.FileRepository;
+import com.project.bookstudy.board.repository.post.PostRepository;
 import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
-import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
-import com.project.bookstudy.study_group.service.StudyGroupService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import javax.persistence.EntityManager;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class PostServiceTest {
-
-    @Autowired
-    CategoryService categoryService;
-
-    @Autowired
-    StudyGroupService studyGroupService;
 
     @Autowired
     MemberRepository memberRepository;
@@ -39,41 +37,34 @@ class PostServiceTest {
     FileRepository fileRepository;
     @Autowired
     CategoryRepository categoryRepository;
-
     @Autowired
     StudyGroupRepository studyGroupRepository;
-
     @Autowired
     PostRepository postRepository;
     @Autowired
     PostService postService;
+    @Autowired
+    EntityManager entityManager;
+
 
     @Test
-    void createPostSuccess() {
+    @Transactional
+    void 게시글_생성_성공() {
         //given
-        Member member = memberRepository.save(createMember("박종훈"));
-        CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
-        StudyGroupDto studyGroup = studyGroupService.createStudyGroup(request.getMemberId(), request.toStudyGroupParam());
-        StudyGroup findStudGroup = studyGroupRepository.findById(studyGroup.getId())
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+        Member member = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member);
 
-        CreateCategoryRequest categoryRequest = CreateCategoryRequest.builder()
-                .subject("subject")
-                .studyGroupId(studyGroup.getId())
-                .build();
-        Long categoryId = categoryService.createCategory(categoryRequest);
-        Category findCategory = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
 
-        CreatePostRequest postRequest = CreatePostRequest.builder()
-                .categoryId(categoryId)
-                .studyGroupId(studyGroup.getId())
-                .memberId(member.getId())
-                .contents("test_content")
-                .subject("test_subject")
-                .build();
+        Category category = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
 
+        CreatePostRequest postRequest = TestDataProvider.makeCreatePostRequest(category, member, studyGroup);
+
+        //when
         Long postId = postService.createPost(postRequest);
+
+        //then
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
@@ -81,72 +72,81 @@ class PostServiceTest {
         assertThat(findPost.getContents()).isEqualTo(postRequest.getContents());
         assertThat(findPost.getMember().getId()).isEqualTo(postRequest.getMemberId());
         assertThat(findPost.getStudyGroup().getId()).isEqualTo(postRequest.getStudyGroupId());
+        assertThat(findPost.getCategory().getId()).isEqualTo(postRequest.getCategoryId());
+//        assertThat(findPost.getFiles().size()).isEqualTo(postRequest.getFiles().size());
     }
 
     @Test
+    @Transactional
+    void 게시글_조회_성공() {
+        //given
+        Member member = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member);
+
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
+
+        Category category = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
+
+        CreatePostRequest postRequest = TestDataProvider.makeCreatePostRequest(category, member, studyGroup);
+
+        Post post = Post.of(postRequest.getContents(), postRequest.getSubject(), studyGroup, member, category);
+        postRepository.save(post);
+
+        entityManager.flush();
+
+        //when
+        PostDto postDto = postService.getPost(post.getId());
+
+        //then
+        Post findPost = postRepository.findById(postDto.getId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+
+        assertThat(findPost.getSubject()).isEqualTo(postRequest.getSubject());
+        assertThat(findPost.getContents()).isEqualTo(postRequest.getContents());
+        assertThat(findPost.getMember().getId()).isEqualTo(postRequest.getMemberId());
+        assertThat(findPost.getStudyGroup().getId()).isEqualTo(postRequest.getStudyGroupId());
+        assertThat(findPost.getCategory().getId()).isEqualTo(postRequest.getCategoryId());
+    }
+
+
+    @Test
+    @DisplayName("Post 삭제 시 File 도 모두 삭제되어야 한다.")
+    @Transactional
     void deletePostSuccess() {
         //given
-        Member member = memberRepository.save(createMember("박종훈"));
-        CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
-        StudyGroupDto studyGroup = studyGroupService.createStudyGroup(request.getMemberId(), request.toStudyGroupParam());
-        StudyGroup findStudGroup = studyGroupRepository.findById(studyGroup.getId())
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+        Member member = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member);
 
-        CreateCategoryRequest categoryRequest = CreateCategoryRequest.builder()
-                .subject("subject")
-                .studyGroupId(studyGroup.getId())
-                .build();
-        Long categoryId = categoryService.createCategory(categoryRequest);
-        Category findCategory = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = StudyGroup.from(member, request.toStudyGroupParam());
+        studyGroupRepository.save(studyGroup);
 
-        CreatePostRequest postRequest = CreatePostRequest.builder()
-                .categoryId(categoryId)
-                .studyGroupId(studyGroup.getId())
-                .memberId(member.getId())
-                .contents("test_content")
-                .subject("test_subject")
-                .build();
-        Post post = Post.of(postRequest.getContents(),
-                postRequest.getSubject(), findStudGroup, member, findCategory);
+        Category category = Category.from(null, studyGroup, "부모카테고리");
+        categoryRepository.save(category);
+
+        CreatePostRequest postRequest1 = TestDataProvider.makeCreatePostRequest(category, member, studyGroup);
+        Post post = Post.of(postRequest1.getContents(), postRequest1.getSubject(), studyGroup, member, category);
+        postRepository.save(post);
+
+        File file1 = File.of("/path1", post);
+        File file2 = File.of("/path2", post);
+        File file3 = File.of("/path3", post);
+        fileRepository.saveAll(List.of(file1, file2, file3));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //when
+        postService.deletePost(post.getId());
+
+        entityManager.flush();
+        entityManager.clear();
+
+        //then
+        assertThat(fileRepository.findById(file1.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file2.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file3.getId()).isEmpty()).isTrue();
+        assertThat(postRepository.findById(post.getId()).isEmpty()).isTrue();
     }
-
-    private Member createMember(String name) {
-        String career = "career";
-        String phone = "010-5453-5325";
-        String email = "whdgnsdl35@gmail.com";
-        return Member.builder()
-                .name(name)
-                .career(career)
-                .phone(phone)
-                .email(email)
-                .build();
-    }
-
-    private CreateStudyGroupRequest getStudyGroupRequest(Member member, String subject) {
-        String contents = "test_contests";
-        String contestsDetail = "test_detail";
-        Long price = 1234L;
-        int maxSize = 10;
-
-        LocalDateTime recruitStart = LocalDateTime.now();
-        LocalDateTime recruitEnd = recruitStart.plusDays(3);
-        LocalDateTime start = recruitEnd.plusDays(3);
-        LocalDateTime end = start.plusDays(3);
-
-        CreateStudyGroupRequest request = CreateStudyGroupRequest.builder()
-                .memberId(member.getId())
-                .recruitmentStartAt(recruitStart)
-                .recruitmentEndAt(recruitEnd)
-                .studyStartAt(start)
-                .studyEndAt(end)
-                .subject(subject)
-                .contents(contents)
-                .contentsDetail(contestsDetail)
-                .price(price)
-                .maxSize(maxSize)
-                .build();
-        return request;
-    }
-
 }

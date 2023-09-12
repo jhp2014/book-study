@@ -39,6 +39,8 @@ public class Enrollment {
         this.studyGroup = studyGroup;
         this.payment = payment;
 
+        this.status = EnrollStatus.RESERVED;
+
     }
 
     public static Enrollment createEnrollment(Member member, StudyGroup studyGroup) {

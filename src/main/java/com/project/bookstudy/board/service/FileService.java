@@ -1,23 +1,14 @@
 package com.project.bookstudy.board.service;
 
-import com.project.bookstudy.board.dmain.Category;
-import com.project.bookstudy.board.dmain.File;
-import com.project.bookstudy.board.dmain.Post;
-import com.project.bookstudy.board.dto.CreatePostRequest;
-import com.project.bookstudy.board.dto.PostDto;
-import com.project.bookstudy.board.dto.PostSearchCond;
-import com.project.bookstudy.board.dto.UpdatePostRequest;
-import com.project.bookstudy.board.repository.CategoryRepository;
-import com.project.bookstudy.board.repository.FileRepository;
-import com.project.bookstudy.board.repository.PostRepository;
+import com.project.bookstudy.board.domain.File;
+import com.project.bookstudy.board.domain.Post;
+import com.project.bookstudy.board.dto.file.CreateFileRequest;
+import com.project.bookstudy.board.dto.file.DeleteFilesRequest;
+import com.project.bookstudy.board.dto.file.FileDto;
+import com.project.bookstudy.board.repository.file.FileRepository;
+import com.project.bookstudy.board.repository.post.PostRepository;
 import com.project.bookstudy.common.exception.ErrorMessage;
-import com.project.bookstudy.member.domain.Member;
-import com.project.bookstudy.member.repository.MemberRepository;
-import com.project.bookstudy.study_group.domain.StudyGroup;
-import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +21,30 @@ import java.util.stream.Collectors;
 public class FileService {
 
     private final FileRepository fileRepository;
+    private final PostRepository postRepository;
 
+    public void upload(Long PostId, List<CreateFileRequest> requests) {
+        Post post = postRepository.findById(PostId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
+        List<File> files = requests.stream()
+                .map(f -> File.of(f.getFilePath(), post))
+                .collect(Collectors.toList());
+
+        fileRepository.saveAll(files);
+    }
+
+    public void delete(DeleteFilesRequest request) {
+        fileRepository.deleteAllByIdInBatch(request.getFileIds());
+    }
+
+    public List<FileDto> getFilesByPostId(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+        List<FileDto> fileDtoList = fileRepository.findAllByPost(post)
+                .stream()
+                .map(FileDto::fromEntity)
+                .collect(Collectors.toList());
+        return fileDtoList;
+    }
 }

@@ -1,15 +1,20 @@
 package com.project.bookstudy.study_group.service;
 
+import com.project.bookstudy.TestDataProvider;
 import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
+import com.project.bookstudy.study_group.domain.EnrollStatus;
 import com.project.bookstudy.study_group.domain.Enrollment;
+import com.project.bookstudy.study_group.domain.PaymentStatus;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
+import com.project.bookstudy.study_group.dto.EnrollmentDto;
 import com.project.bookstudy.study_group.dto.request.CreateEnrollmentRequest;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.EnrollmentRepository;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.as;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class EnrollmentServiceTest {
@@ -34,72 +42,69 @@ class EnrollmentServiceTest {
     EnrollmentService enrollmentService;
 
     @Test
-    @DisplayName("Enrollment 생성 성공")
     @Transactional
-    void createEnrollmentSuccess() {
+    void Enrollment_생성_성공() {
         //given
-        Member member = createMember("박종훈");
-        member.chargePoint(1000000L);
+        Member member1 = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member1);
 
-        Member savedMember = memberRepository.save(member);
+        Member member2 = TestDataProvider.makeMember("박종훈2");
+        memberRepository.save(member2);
+        Long originMemberPoint = 1000000L;
+        member2.chargePoint(originMemberPoint);
 
-        CreateStudyGroupParam param = getStudyGroupRequest(savedMember, "스터디 주제").toStudyGroupParam();
-        StudyGroup saveStudyGroup = studyGroupRepository.save(StudyGroup.from(savedMember, param));
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member1, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member1, request.toStudyGroupParam()));
 
-        CreateEnrollmentRequest request = CreateEnrollmentRequest.builder()
-                .memberId(savedMember.getId())
-                .studyGroupId(saveStudyGroup.getId())
-                .build();
+        CreateEnrollmentRequest createEnrollmentRequest = TestDataProvider.makeCreateEnrollmentRequest(studyGroup, member2);
 
         //when
-        Long enrollmentId = enrollmentService.enroll(request);
-
-        entityManager.flush();
-        entityManager.clear();
+        Long enrollmentId = enrollmentService.enroll(createEnrollmentRequest);
 
         //then
         Enrollment findEnrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalStateException(ErrorMessage.NO_ENTITY.getMessage()));
+
+        assertThat(findEnrollment.getStatus()).isEqualTo(EnrollStatus.RESERVED);
+        assertThat(findEnrollment.getMember().getId()).isEqualTo(member2.getId());
+        assertThat(findEnrollment.getStudyGroup().getId()).isEqualTo(studyGroup.getId());
+        assertThat(studyGroup.getEnrollments().contains(findEnrollment)).isTrue();
+        assertThat(findEnrollment.getPayment().getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+        assertThat(member2.getPoint()).isEqualTo(originMemberPoint - studyGroup.getPrice());
+
     }
 
-    private Member createMember(String name) {
-        String career = "career";
-        String phone = "010-5453-5325";
-        String email = "whdgnsdl35@gmail.com";
-        return Member.builder()
-                .name(name)
-                .career(career)
-                .phone(phone)
-                .email(email)
-                .build();
+
+    @Test
+    @Transactional
+    void Enrollment_조회_성공() {
+        //given
+        Member member1 = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member1);
+
+        Member member2 = TestDataProvider.makeMember("박종훈2");
+        memberRepository.save(member2);
+        Long originMemberPoint = 1000000L;
+        member2.chargePoint(originMemberPoint);
+
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member1, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member1, request.toStudyGroupParam()));
+
+        CreateEnrollmentRequest createEnrollmentRequest = TestDataProvider.makeCreateEnrollmentRequest(studyGroup, member2);
+        Enrollment enrollment = enrollmentRepository.save(Enrollment.createEnrollment(member2, studyGroup));
+
+        //when
+        EnrollmentDto enrollmentDto = enrollmentService.getEnrollment(enrollment.getId());
+
+        //then
+        assertThat(enrollmentDto.getId()).isEqualTo(enrollment.getId());
+        assertThat(enrollmentDto.getStatus()).isEqualTo(enrollment.getStatus());
+        assertThat(enrollmentDto.getPayment().getPrice()).isEqualTo(enrollment.getPayment().getPrice());
+        assertThat(enrollmentDto.getPayment().getStatus()).isEqualTo(enrollment.getPayment().getStatus());
+        assertThat(enrollmentDto.getStudyGroup().getId()).isEqualTo(enrollment.getStudyGroup().getId());
     }
 
-    private CreateStudyGroupRequest getStudyGroupRequest(Member member, String subject) {
-        String contents = "test_contests";
-        String contestsDetail = "test_detail";
-        Long price = 100000L;
-        int maxSize = 10;
 
-        LocalDateTime recruitStart = LocalDateTime.now();
-        LocalDateTime recruitEnd = recruitStart.plusDays(3);
-        LocalDateTime start = recruitEnd.plusDays(3);
-        LocalDateTime end = start.plusDays(3);
-
-        CreateStudyGroupRequest request = CreateStudyGroupRequest.builder()
-                .memberId(member.getId())
-                .recruitmentStartAt(recruitStart)
-                .recruitmentEndAt(recruitEnd)
-                .studyStartAt(start)
-                .studyEndAt(end)
-                .subject(subject)
-                .contents(contents)
-                .contentsDetail(contestsDetail)
-                .price(price)
-                .maxSize(maxSize)
-                .build();
-
-        return request;
-    }
 
 
 }

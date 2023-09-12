@@ -1,25 +1,31 @@
 package com.project.bookstudy.board.service;
 
-import com.project.bookstudy.board.dmain.Category;
-import com.project.bookstudy.board.dto.CreateCategoryRequest;
-import com.project.bookstudy.board.repository.CategoryRepository;
-import com.project.bookstudy.board.repository.FileRepository;
+import com.project.bookstudy.TestDataProvider;
+import com.project.bookstudy.board.domain.File;
+import com.project.bookstudy.board.domain.Post;
+import com.project.bookstudy.board.dto.post.CreatePostRequest;
+import com.project.bookstudy.board.repository.file.FileRepository;
+import com.project.bookstudy.board.repository.post.PostRepository;
+import com.project.bookstudy.board.domain.Category;
+import com.project.bookstudy.board.dto.category.CreateCategoryRequest;
+import com.project.bookstudy.board.repository.category.CategoryRepository;
+import com.project.bookstudy.board.service.CategoryService;
 import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
-import com.project.bookstudy.study_group.dto.StudyGroupDto;
 import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
-import com.project.bookstudy.study_group.service.StudyGroupService;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import javax.persistence.EntityManager;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class CategoryServiceTest {
@@ -38,111 +44,129 @@ class CategoryServiceTest {
     @Autowired
     CategoryRepository categoryRepository;
 
-    @Test
-    @DisplayName("부모 카테고리 생성 성공")
-    @Transactional
-    void createParentCategorySuccess() {
-        //given
-        Member member = memberRepository.save(createMember("박종훈"));
+    @Autowired
+    PostRepository postRepository;
 
-        CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
+    @Autowired
+    EntityManager entityManager;
+
+
+    @Test
+    @Transactional
+    void 부모카테고리_생성_성공() {
+        //given
+        Member member = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member);
+
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
         StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
 
-        CreateCategoryRequest categoryRequest = getCreateCategoryRequest(1L, studyGroup);
-        //when
+        CreateCategoryRequest categoryRequest = TestDataProvider.makeCreateCategoryRequest(null, studyGroup);
 
+        //when
         Long categoryId = categoryService.createCategory(categoryRequest);
 
         //then
         Category findCategory = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
-        Assertions.assertThat(findCategory).isNotNull();
-        Assertions.assertThat(findCategory.getSubject()).isEqualTo(categoryRequest.getSubject());
-        Assertions.assertThat(findCategory.getStudyGroup().getId()).isEqualTo(categoryRequest.getStudyGroupId());
+        assertThat(findCategory).isNotNull();
+        assertThat(findCategory.getParentCategory()).isNull();
+        assertThat(findCategory.getSubject()).isEqualTo(categoryRequest.getSubject());
+        assertThat(findCategory.getStudyGroup().getId()).isEqualTo(categoryRequest.getStudyGroupId());
     }
 
     @Test
-    @DisplayName("자식 카테고리 생성 성공")
     @Transactional
-    void createChildCategorySuccess() {
+    void 자식카테고리_생성_성공() {
         //given
-        Member member = memberRepository.save(createMember("박종훈"));
+        Member member = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member);
 
-        CreateStudyGroupRequest request = getStudyGroupRequest(member, "test");
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
         StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
 
-        CreateCategoryRequest categoryRequest = getCreateCategoryRequest(1L, studyGroup);
-        Category parentCategory = Category.from(null, studyGroup, categoryRequest.getSubject());
-        categoryRepository.save(parentCategory);
+        Category parentCategory = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
 
-        CreateCategoryRequest createChildCategoryRequest = CreateCategoryRequest.builder()
-                .parentCategoryId(parentCategory.getId())
-                .studyGroupId(studyGroup.getId())
-                .subject("하위 주제")
-                .build();
+        CreateCategoryRequest categoryRequest = TestDataProvider.makeCreateCategoryRequest(parentCategory.getId(), studyGroup);
 
-        
         //when
-
-        Long categoryId = categoryService.createCategory(createChildCategoryRequest);
+        Long categoryId = categoryService.createCategory(categoryRequest);
 
         //then
         Category findCategory = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
-        Assertions.assertThat(findCategory).isNotNull();
-        Assertions.assertThat(findCategory.getParentCategory().getId()).isEqualTo(parentCategory.getId());
-        Assertions.assertThat(findCategory.getSubject()).isEqualTo(createChildCategoryRequest.getSubject());
-        Assertions.assertThat(findCategory.getStudyGroup().getId()).isEqualTo(createChildCategoryRequest.getStudyGroupId());
+        assertThat(findCategory.getId()).isEqualTo(categoryId);
+        assertThat(findCategory.getParentCategory().getId()).isEqualTo(parentCategory.getId());
+        assertThat(findCategory.getSubject()).isEqualTo(categoryRequest.getSubject());
+        assertThat(findCategory.getIsDeleted()).isEqualTo(Boolean.FALSE);
+        assertThat(parentCategory.getChildCategories().contains(findCategory)).isTrue();
     }
 
+    @Test
+    @Transactional
+    void 카테고리_삭제_성공() {
+        //given
+        Member member = TestDataProvider.makeMember("박종훈1");
+        memberRepository.save(member);
 
-    private Member createMember(String name) {
-        String career = "career";
-        String phone = "010-5453-5325";
-        String email = "whdgnsdl35@gmail.com";
-        return Member.builder()
-                .name(name)
-                .career(career)
-                .phone(phone)
-                .email(email)
-                .build();
+        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
+
+        Category category1 = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
+        Category category2 = categoryRepository.save(Category.from(category1, studyGroup, "두번째 카테고리"));
+        Category category3 = categoryRepository.save(Category.from(category2, studyGroup, "세번째 카테고리"));
+
+        CreatePostRequest postRequest1 = TestDataProvider.makeCreatePostRequest(category1, member, studyGroup);
+        Post post1 = Post.of(postRequest1.getContents(), postRequest1.getSubject(), studyGroup, member, category1);
+        postRepository.save(post1);
+
+        CreatePostRequest postRequest2= TestDataProvider.makeCreatePostRequest(category2, member, studyGroup);
+        Post post2 = Post.of(postRequest2.getContents(), postRequest2.getSubject(), studyGroup, member, category2);
+        postRepository.save(post2);
+
+        CreatePostRequest postRequest3 = TestDataProvider.makeCreatePostRequest(category3, member, studyGroup);
+        Post post3 = Post.of(postRequest3.getContents(), postRequest3.getSubject(), studyGroup, member, category3);
+        postRepository.save(post3);
+
+        CreatePostRequest postRequest4 = TestDataProvider.makeCreatePostRequest(category1, member, studyGroup);
+        Post post4 = Post.of(postRequest4.getContents(), postRequest4.getSubject(), studyGroup, member, category1);
+        postRepository.save(post4);
+
+        File file1 = File.of("/path1", post1);
+        File file2 = File.of("/path2", post1);
+        File file3 = File.of("/path3", post1);
+        fileRepository.saveAll(List.of(file1, file2, file3));
+
+        File file4 = File.of("/path1", post4);
+        File file5 = File.of("/path2", post4);
+        File file6 = File.of("/path3", post4);
+        fileRepository.saveAll(List.of(file4, file5, file6));
+
+        entityManager.flush();
+        entityManager.clear();
+
+        System.out.println(">>>>>>>>>>>>>>>>>> delete Start");
+        //when
+        categoryService.deleteCategory(category1.getId());
+
+        entityManager.flush();
+        entityManager.clear();
+        System.out.println(">>>>>>>>>>>>>>>>>> delete end");
+
+        //then
+        assertThat(postRepository.findById(post1.getId()).isEmpty()).isTrue();
+        assertThat(postRepository.findById(post2.getId()).isEmpty()).isTrue();
+        assertThat(postRepository.findById(post3.getId()).isEmpty()).isTrue();
+        assertThat(postRepository.findById(post4.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file1.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file2.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file3.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file4.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file5.getId()).isEmpty()).isTrue();
+        assertThat(fileRepository.findById(file6.getId()).isEmpty()).isTrue();
     }
-
-    private CreateStudyGroupRequest getStudyGroupRequest(Member member, String subject) {
-        String contents = "test_contests";
-        String contestsDetail = "test_detail";
-        Long price = 1234L;
-        int maxSize = 10;
-
-        LocalDateTime recruitStart = LocalDateTime.now();
-        LocalDateTime recruitEnd = recruitStart.plusDays(3);
-        LocalDateTime start = recruitEnd.plusDays(3);
-        LocalDateTime end = start.plusDays(3);
-
-        CreateStudyGroupRequest request = CreateStudyGroupRequest.builder()
-                .memberId(member.getId())
-                .recruitmentStartAt(recruitStart)
-                .recruitmentEndAt(recruitEnd)
-                .studyStartAt(start)
-                .studyEndAt(end)
-                .subject(subject)
-                .contents(contents)
-                .contentsDetail(contestsDetail)
-                .price(price)
-                .maxSize(maxSize)
-                .build();
-        return request;
-    }
-
-    private CreateCategoryRequest getCreateCategoryRequest(Long parentId, StudyGroup studyGroup) {
-        return CreateCategoryRequest.builder()
-                .parentCategoryId(parentId)
-                .subject("subject")
-                .studyGroupId(studyGroup.getId())
-                .build();
-    }
-
-
 }
+
+

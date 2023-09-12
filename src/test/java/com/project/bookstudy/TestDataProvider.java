@@ -1,6 +1,8 @@
 package com.project.bookstudy;
 
-import com.project.bookstudy.board.dto.CreateCategoryRequest;
+import com.project.bookstudy.board.domain.Category;
+import com.project.bookstudy.board.dto.category.CreateCategoryRequest;
+import com.project.bookstudy.board.dto.post.CreatePostRequest;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.dto.request.CreateEnrollmentRequest;
@@ -86,11 +88,22 @@ public class TestDataProvider {
         return request;
     }
 
-    public static CreateCategoryRequest getCreateCategoryRequest(Long parentId, StudyGroup studyGroup) {
+    public static CreateCategoryRequest makeCreateCategoryRequest(Long parentId, StudyGroup studyGroup) {
         return CreateCategoryRequest.builder()
                 .parentCategoryId(parentId)
                 .subject("subject")
                 .studyGroupId(studyGroup.getId())
+                .build();
+    }
+
+    public static CreatePostRequest
+    makeCreatePostRequest(Category category, Member member, StudyGroup studyGroup) {
+        return CreatePostRequest.builder()
+                .categoryId(category.getId())
+                .studyGroupId(studyGroup.getId())
+                .memberId(member.getId())
+                .contents("test_content")
+                .subject("test_subject")
                 .build();
     }
 

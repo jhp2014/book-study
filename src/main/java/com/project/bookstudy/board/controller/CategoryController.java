@@ -1,9 +1,6 @@
 package com.project.bookstudy.board.controller;
 
-import com.project.bookstudy.board.dto.CategoryDto;
-import com.project.bookstudy.board.dto.CategoryResponse;
-import com.project.bookstudy.board.dto.CreateCategoryRequest;
-import com.project.bookstudy.board.dto.UpdateCategoryRequest;
+import com.project.bookstudy.board.dto.category.*;
 import com.project.bookstudy.board.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +15,13 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
-
     @PostMapping
-    public Long createCategory(@RequestBody CreateCategoryRequest request) {
-        return categoryService.createCategory(request);
+    public CreateCategoryResponse createCategory(@RequestBody CreateCategoryRequest request) {
+        Long categoryId = categoryService.createCategory(request);
+
+        return CreateCategoryResponse.builder()
+                .categoryId(categoryId)
+                .build();
     }
 
     @GetMapping

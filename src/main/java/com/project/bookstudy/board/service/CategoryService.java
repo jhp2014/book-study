@@ -1,30 +1,35 @@
 package com.project.bookstudy.board.service;
 
-import com.project.bookstudy.board.dmain.Category;
-import com.project.bookstudy.board.dto.CategoryDto;
-import com.project.bookstudy.board.dto.CreateCategoryRequest;
-import com.project.bookstudy.board.dto.UpdateCategoryRequest;
-import com.project.bookstudy.board.repository.CategoryRepository;
+import com.project.bookstudy.board.domain.Post;
+import com.project.bookstudy.board.repository.file.FileRepository;
+import com.project.bookstudy.board.repository.post.PostRepository;
+import com.project.bookstudy.board.domain.Category;
+import com.project.bookstudy.board.dto.category.CategoryDto;
+import com.project.bookstudy.board.dto.category.CreateCategoryRequest;
+import com.project.bookstudy.board.dto.category.UpdateCategoryRequest;
+import com.project.bookstudy.board.repository.category.CategoryRepository;
 import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.study_group.domain.StudyGroup;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.sql.Update;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final StudyGroupRepository studyGroupRepository;
+    private final PostRepository postRepository;
+    private final FileRepository fileRepository;
 
     @Transactional
     public Long createCategory(CreateCategoryRequest request) {
@@ -58,10 +63,29 @@ public class CategoryService {
     public void deleteCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
-        categoryRepository.delete(category);
 
         //해당 카테고리의 모든 게시물도 삭제 되어야 한다.
         //dfs 사용해야 할듯
+        deleteRelatedData(category);
+    }
+
+    private void deleteRelatedData(Category category) {
+
+        if (category == null) return;
+
+        List<Category> childCategories = categoryRepository.findRootOrChildByParentId(category.getId());
+        for (Category childCategory : childCategories) {
+            deleteRelatedData(childCategory);
+        }
+
+        List<Post> postList = postRepository.findPostsByCategory(category);
+
+        //게시판 파일 삭제
+        fileRepository.deleteAllInBatchByPostIn(postList);
+        //카테고리의 게시판 삭제
+        postRepository.softDeleteAllByCategory(category);
+        //카테고리 삭제
+        categoryRepository.delete(category);
     }
 
     @Transactional
