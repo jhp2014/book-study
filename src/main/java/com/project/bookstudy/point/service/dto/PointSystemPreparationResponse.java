@@ -9,7 +9,7 @@ import java.util.Map;
 public class PointSystemPreparationResponse {
 
     private String transactionId;
-    private Map<String, String> extraData;
+    private Map<String, String> extraData;  //특정 결제 시스템에 종속되지 않도록 함
 
     @Builder
     public PointSystemPreparationResponse(String transactionId, Map<String, String> extraData) {

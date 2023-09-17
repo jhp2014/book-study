@@ -5,6 +5,7 @@ import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.dto.MemberDto;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.point.domain.PointCharge;
+import com.project.bookstudy.point.domain.PointChargeStatus;
 import com.project.bookstudy.point.repository.PointChargeRepository;
 import com.project.bookstudy.point.service.dto.PointChargeDto;
 import com.project.bookstudy.point.service.dto.PointChargePrepareServiceResponse;
@@ -17,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.project.bookstudy.point.domain.PointChargeStatus.FAIL;
+
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PointChargeService {
 
@@ -25,6 +29,7 @@ public class PointChargeService {
     private final MemberRepository memberRepository;
     private final PointChargeRepository pointChargeRepository;
 
+    @Transactional
     public PointChargePrepareServiceResponse prepare(Long memberId, Long chargeAmount) {
 
         //setting
@@ -32,7 +37,10 @@ public class PointChargeService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
 
         //logic
-        String tempKey = UUID.randomUUID().toString();
+        String tempKey = UUID.randomUUID().toString();  //redirect url 설정 시 같이 전달할 정보,
+
+        //RestTemplate 사용 > Blocking 걸린다. 그러면, Transaction을 Service에서 걸어야 할까?
+        //내 생각) Service에 걸어야 한다. >> 원자성 유지 (현재 로직에서 문제는 없지만, 앞으로를 위해 걸어둔다)
         PointSystemPreparationResponse response = pointClient.preparePointCharge(MemberDto.fromEntity(member), chargeAmount, tempKey);
 
         PointCharge pointCharge = PointCharge.builder()
@@ -70,8 +78,20 @@ public class PointChargeService {
     private void validate(PointSystemApprovalResponse response, PointCharge pointCharge) {
         if (!response.getTransactionId().equals(pointCharge.getTransactionId())
                 || pointCharge.getChargeAmount().longValue() != response.getTotalAmount().longValue()) {
-            pointCharge.fail();
+            pointCharge.terminateIn(FAIL);
             throw new IllegalStateException(ErrorMessage.CHARGE_FAIL.getMessage());
         }
+    }
+
+
+    @Transactional
+    public void terminate(String tempKey, PointChargeStatus status) {
+
+        //setting
+        PointCharge pointCharge = pointChargeRepository.findByTempKey(tempKey)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.NO_ENTITY.getMessage()));
+
+        //logic
+        pointCharge.terminateIn(status);
     }
 }

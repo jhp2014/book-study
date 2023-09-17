@@ -44,7 +44,7 @@ public class PointCharge {
         this.chargeDt = chargeDt;
     }
 
-    public void fail() {
-        this.status = PointChargeStatus.FAIL;
+    public void terminateIn(PointChargeStatus status) {
+        this.status = status;
     }
 }

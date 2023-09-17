@@ -6,7 +6,6 @@ import com.project.bookstudy.point.service.dto.PointChargeDto;
 import com.project.bookstudy.point.service.dto.PointSystemApprovalResponse;
 import com.project.bookstudy.point.service.dto.PointSystemPreparationResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -41,8 +40,8 @@ public class KakaoPointClient implements PointClient {
     private static final String FIXED_VAT_AMOUNT = "0";
     private static final String FIXED_TAX_FREE_AMOUNT = "0";
     private static final String APPROVAL_URL = "http://localhost:8080/api/v1/kakao/point/approval/success";
-    private static final String CANCEL_URL = "http://localhost:8080/api/v1/kakao/point/approval/cancel";
-    private static final String FAIL_URL = "http://localhost:8080/api/v1/kakao/point/approval/fail";
+    private static final String CANCEL_URL = "http://localhost:8080/api/v1/kakao/point/cancel";
+    private static final String FAIL_URL = "http://localhost:8080/api/v1/kakao/point/fail";
     private static final String KAKAO_BASE_URL = "https://kapi.kakao.com/v1/payment";
     private final String admin_Key = "ef47041343d62d8524d27d836e5f0947";
 
@@ -55,16 +54,16 @@ public class KakaoPointClient implements PointClient {
         //prepare request param
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>() {{
             add("cid", FIXED_CID);
-            put("partner_order_id", List.of(FIXED_PARTNER_ORDER_ID));
-            put("partner_user_id", List.of(String.valueOf(memberDto.getId())));
-            put("item_name", List.of(FIXED_ITEM_NAME));
-            put("quantity", List.of(FIXED_QUANTITY));
-            put("total_amount", List.of(String.valueOf(pointAmount)));
-            put("vat_amount", List.of(FIXED_VAT_AMOUNT));
-            put("tax_free_amount", List.of(FIXED_TAX_FREE_AMOUNT));
-            put("approval_url", List.of(getApprovalUrlWithQueryString("temp_key", tempKey)));
-            put("cancel_url", List.of(CANCEL_URL));
-            put("fail_url", List.of(FAIL_URL));
+            add("partner_order_id", FIXED_PARTNER_ORDER_ID);
+            add("partner_user_id", String.valueOf(memberDto.getId()));
+            add("item_name", FIXED_ITEM_NAME);
+            add("quantity", FIXED_QUANTITY);
+            add("total_amount", String.valueOf(pointAmount));
+            add("vat_amount", FIXED_VAT_AMOUNT);
+            add("tax_free_amount", FIXED_TAX_FREE_AMOUNT);
+            add("approval_url", getUrlWithParam(APPROVAL_URL,"temp_key", tempKey));
+            add("cancel_url", getUrlWithParam(CANCEL_URL,"temp_key", tempKey));
+            add("fail_url", getUrlWithParam(FAIL_URL,"temp_key", tempKey));
         }};
 
         //prepare url
@@ -97,12 +96,12 @@ public class KakaoPointClient implements PointClient {
         return requestHeader;
     }
 
-    private String getApprovalUrlWithQueryString(String param, String value) {
+    private String getUrlWithParam(String url, String param, String value) {
         /**
          * make APPROVAL_URL?param=value
          */
         StringBuilder queryString = new StringBuilder()
-                .append(APPROVAL_URL).append("?").append(param).append("=").append(value);
+                .append(url).append("?").append(param).append("=").append(value);
         return queryString.toString();
     }
 
