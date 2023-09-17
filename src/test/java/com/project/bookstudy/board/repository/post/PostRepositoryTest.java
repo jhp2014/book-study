@@ -7,11 +7,10 @@ import com.project.bookstudy.board.dto.post.CreatePostRequest;
 import com.project.bookstudy.board.domain.Category;
 import com.project.bookstudy.board.repository.category.CategoryRepository;
 import com.project.bookstudy.board.repository.file.FileRepository;
-import com.project.bookstudy.board.repository.post.PostRepository;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
-import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.api.controller.request.StudyGroupCreateRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -46,8 +45,8 @@ class PostRepositoryTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = StudyGroup.from(member, request.toStudyGroupParam());
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = StudyGroup.from(member, request.toCreateServiceParam());
         studyGroupRepository.save(studyGroup);
 
         Category category = Category.from(null, studyGroup, "부모카테고리");
@@ -82,8 +81,8 @@ class PostRepositoryTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = StudyGroup.from(member, request.toStudyGroupParam());
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = StudyGroup.from(member, request.toCreateServiceParam());
         studyGroupRepository.save(studyGroup);
 
         Category category = Category.from(null, studyGroup, "부모카테고리");

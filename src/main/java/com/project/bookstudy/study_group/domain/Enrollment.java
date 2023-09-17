@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -33,7 +34,7 @@ public class Enrollment {
     private Payment payment;
 
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder
     private Enrollment(Member member, StudyGroup studyGroup, Payment payment) {
         this.member = member;
         this.studyGroup = studyGroup;
@@ -43,10 +44,9 @@ public class Enrollment {
 
     }
 
-    public static Enrollment createEnrollment(Member member, StudyGroup studyGroup) {
-        // Study Group 인원 체크 해야한다.
-        // 이때 동시성 문제 고려 해야한다.
-        Payment payment = Payment.createPayment(studyGroup, member);
+    public static Enrollment of(Member member, StudyGroup studyGroup, LocalDateTime enrollDate) {
+        studyGroup.isApplicable();
+        Payment payment = Payment.createPayment(studyGroup, member, enrollDate);
 
         Enrollment enrollment = Enrollment.builder()
                 .member(member)
@@ -56,9 +56,7 @@ public class Enrollment {
 
         //양방향 연관관계 설정
         studyGroup.getEnrollments().add(enrollment);
-
         return enrollment;
-
     }
 
     public void cancel() {

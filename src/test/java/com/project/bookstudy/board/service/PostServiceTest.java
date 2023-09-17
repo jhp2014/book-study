@@ -13,7 +13,7 @@ import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
-import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.api.controller.request.StudyGroupCreateRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,8 +54,8 @@ class PostServiceTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toCreateServiceParam()));
 
         Category category = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
 
@@ -83,8 +83,8 @@ class PostServiceTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toCreateServiceParam()));
 
         Category category = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
 
@@ -118,8 +118,8 @@ class PostServiceTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = StudyGroup.from(member, request.toStudyGroupParam());
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = StudyGroup.from(member, request.toCreateServiceParam());
         studyGroupRepository.save(studyGroup);
 
         Category category = Category.from(null, studyGroup, "부모카테고리");

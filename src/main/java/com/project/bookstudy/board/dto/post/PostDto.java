@@ -4,7 +4,7 @@ import com.project.bookstudy.board.domain.Post;
 import com.project.bookstudy.board.dto.file.FileDto;
 import com.project.bookstudy.board.dto.category.CategoryDto;
 import com.project.bookstudy.member.dto.MemberDto;
-import com.project.bookstudy.study_group.dto.StudyGroupDto;
+import com.project.bookstudy.study_group.api.service.response.StudyGroupGetResponse;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,18 +20,18 @@ public class PostDto {
     private String contents;
     private CategoryDto categoryDto;
     private MemberDto memberDto;
-    private StudyGroupDto studyGroupDto;
+    private StudyGroupGetResponse studyGroupGetResponse;
 
     private List<FileDto> filePaths;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public PostDto(Long id, String subject, String contents, CategoryDto categoryDto, MemberDto memberDto, StudyGroupDto studyGroupDto, List<FileDto> filePaths) {
+    public PostDto(Long id, String subject, String contents, CategoryDto categoryDto, MemberDto memberDto, StudyGroupGetResponse studyGroupGetResponse, List<FileDto> filePaths) {
         this.id = id;
         this.subject = subject;
         this.contents = contents;
         this.categoryDto = categoryDto;
         this.memberDto = memberDto;
-        this.studyGroupDto = studyGroupDto;
+        this.studyGroupGetResponse = studyGroupGetResponse;
         this.filePaths = filePaths;
     }
 
@@ -45,7 +45,7 @@ public class PostDto {
                 .subject(post.getSubject())
                 .contents(post.getContents())
                 .categoryDto(CategoryDto.fromEntity(post.getCategory()))
-                .studyGroupDto(StudyGroupDto.fromEntity(post.getStudyGroup()))
+                .studyGroupGetResponse(StudyGroupGetResponse.fromEntity(post.getStudyGroup()))
                 .filePaths(post.getFiles()
                         .stream()
                         .map(FileDto::fromEntity)

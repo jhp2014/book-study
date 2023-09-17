@@ -2,8 +2,10 @@ package com.project.bookstudy.member.domain;
 
 import com.project.bookstudy.common.exception.ErrorMessage;
 import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -32,6 +34,7 @@ public class Member extends BaseTimeEntity {
         this.name = name;
         this.phone = phone;
         this.career = career;
+
         this.point = 0L;
         this.status = MemberStatus.ACTIVE;
         this.role = Role.MEMBER;
@@ -49,5 +52,21 @@ public class Member extends BaseTimeEntity {
     public void usePoint(Long point) {
         if (this.point < point) throw new IllegalStateException(ErrorMessage.NOT_ENOUGH_POINT.getMessage());
         this.point -= point;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Member member = (Member) o;
+        return getId() != null && Objects.equals(getId(), member.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

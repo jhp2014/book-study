@@ -1,13 +1,8 @@
 package com.project.bookstudy.board.dto.category;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 
 @Getter
 @ToString

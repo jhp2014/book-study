@@ -9,9 +9,6 @@ import java.util.Optional;
 
 public interface CustomStudyGroupRepository {
 
-    Optional<StudyGroup> findByIdWithLeader(Long id);
-    Optional<StudyGroup> findByIdWithEnrollments(Long id);
-
     Optional<StudyGroup> findByIdWithEnrollmentWithAll(Long id);
-    Page<StudyGroup> searchStudyGroupWithLeader(Pageable pageable, StudyGroupSearchCond cond);
+    Page<StudyGroup> searchStudyGroupFetchLeader(Pageable pageable, StudyGroupSearchCond cond);
 }

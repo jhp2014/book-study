@@ -25,16 +25,6 @@ import static com.project.bookstudy.study_group.domain.QStudyGroup.studyGroup;
 public class CustomStudyGroupRepositoryImpl implements CustomStudyGroupRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
-    @Override
-    public Optional<StudyGroup> findByIdWithEnrollments(Long id) {
-
-        StudyGroup studyGroup = jpaQueryFactory
-                .selectFrom(QStudyGroup.studyGroup)
-                .leftJoin(QStudyGroup.studyGroup.enrollments, enrollment).fetchJoin()
-                .fetchOne();
-
-        return Optional.ofNullable(studyGroup);
-    }
 
     @Override
     public Optional<StudyGroup> findByIdWithEnrollmentWithAll(Long id) {
@@ -50,18 +40,7 @@ public class CustomStudyGroupRepositoryImpl implements CustomStudyGroupRepositor
     }
 
     @Override
-    public Optional<StudyGroup> findByIdWithLeader(Long id) {
-        StudyGroup studyGroup = jpaQueryFactory
-                .selectFrom(QStudyGroup.studyGroup)
-                .where(QStudyGroup.studyGroup.id.eq(id))
-                .join(QStudyGroup.studyGroup.leader, member).fetchJoin()
-                .fetchOne();
-
-        return Optional.ofNullable(studyGroup);
-    }
-
-    @Override
-    public Page<StudyGroup> searchStudyGroupWithLeader(Pageable pageable, StudyGroupSearchCond cond) {
+    public Page<StudyGroup> searchStudyGroupFetchLeader(Pageable pageable, StudyGroupSearchCond cond) {
 
         List<StudyGroup> studyGroups = jpaQueryFactory
                 .selectFrom(studyGroup)

@@ -5,9 +5,9 @@ import com.project.bookstudy.board.dto.category.CreateCategoryRequest;
 import com.project.bookstudy.board.dto.post.CreatePostRequest;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.study_group.domain.StudyGroup;
-import com.project.bookstudy.study_group.dto.request.CreateEnrollmentRequest;
-import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
-import com.project.bookstudy.study_group.dto.request.UpdateStudyGroupRequest;
+import com.project.bookstudy.study_group.dto.request.EnrollmentCreateRequest;
+import com.project.bookstudy.study_group.api.controller.request.StudyGroupCreateRequest;
+import com.project.bookstudy.study_group.api.controller.request.UpdateStudyGroupRequest;
 
 import java.time.LocalDateTime;
 
@@ -26,7 +26,7 @@ public class TestDataProvider {
                 .build();
     }
 
-    public static CreateStudyGroupRequest makeCreateStudyGroupRequest(Member member, String subject) {
+    public static StudyGroupCreateRequest makeCreateStudyGroupRequest(Member member, String subject) {
         String contents = "test_contests";
         String contestsDetail = "test_detail";
         Long price = 1234L;
@@ -37,7 +37,7 @@ public class TestDataProvider {
         LocalDateTime start = recruitEnd.plusDays(3);
         LocalDateTime end = start.plusDays(3);
 
-        CreateStudyGroupRequest request = CreateStudyGroupRequest.builder()
+        StudyGroupCreateRequest request = StudyGroupCreateRequest.builder()
                 .memberId(member.getId())
                 .recruitmentStartAt(recruitStart)
                 .recruitmentEndAt(recruitEnd)
@@ -53,8 +53,8 @@ public class TestDataProvider {
         return request;
     }
 
-    public static CreateEnrollmentRequest makeCreateEnrollmentRequest(StudyGroup studyGroup, Member member) {
-        return CreateEnrollmentRequest.builder()
+    public static EnrollmentCreateRequest makeCreateEnrollmentRequest(StudyGroup studyGroup, Member member) {
+        return EnrollmentCreateRequest.builder()
                 .studyGroupId(studyGroup.getId())
                 .memberId(member.getId())
                 .build();

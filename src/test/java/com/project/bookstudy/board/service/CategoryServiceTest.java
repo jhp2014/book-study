@@ -9,12 +9,11 @@ import com.project.bookstudy.board.repository.post.PostRepository;
 import com.project.bookstudy.board.domain.Category;
 import com.project.bookstudy.board.dto.category.CreateCategoryRequest;
 import com.project.bookstudy.board.repository.category.CategoryRepository;
-import com.project.bookstudy.board.service.CategoryService;
 import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
 import com.project.bookstudy.member.repository.MemberRepository;
 import com.project.bookstudy.study_group.domain.StudyGroup;
-import com.project.bookstudy.study_group.dto.request.CreateStudyGroupRequest;
+import com.project.bookstudy.study_group.api.controller.request.StudyGroupCreateRequest;
 import com.project.bookstudy.study_group.repository.StudyGroupRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +57,8 @@ class CategoryServiceTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toCreateServiceParam()));
 
         CreateCategoryRequest categoryRequest = TestDataProvider.makeCreateCategoryRequest(null, studyGroup);
 
@@ -83,8 +82,8 @@ class CategoryServiceTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toCreateServiceParam()));
 
         Category parentCategory = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
 
@@ -111,8 +110,8 @@ class CategoryServiceTest {
         Member member = TestDataProvider.makeMember("박종훈1");
         memberRepository.save(member);
 
-        CreateStudyGroupRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
-        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toStudyGroupParam()));
+        StudyGroupCreateRequest request = TestDataProvider.makeCreateStudyGroupRequest(member, "스터디 주제");
+        StudyGroup studyGroup = studyGroupRepository.save(StudyGroup.from(member, request.toCreateServiceParam()));
 
         Category category1 = categoryRepository.save(Category.from(null, studyGroup, "부모카테고리"));
         Category category2 = categoryRepository.save(Category.from(category1, studyGroup, "두번째 카테고리"));

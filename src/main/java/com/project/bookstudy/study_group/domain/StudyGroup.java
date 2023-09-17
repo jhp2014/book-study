@@ -2,10 +2,8 @@ package com.project.bookstudy.study_group.domain;
 
 import com.project.bookstudy.common.exception.ErrorMessage;
 import com.project.bookstudy.member.domain.Member;
-import com.project.bookstudy.study_group.domain.param.CreateStudyGroupParam;
-import com.project.bookstudy.study_group.domain.param.UpdateStudyGroupParam;
+import com.project.bookstudy.study_group.api.service.request.StudyGroupCreateServiceRequest;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -27,11 +25,10 @@ public class StudyGroup {
     private String contentsDetail;
     private LocalDateTime studyStartAt;
     private LocalDateTime studyEndAt;
-    private int maxSize;
+    private Integer maxSize;
     private Long price;
     private LocalDateTime recruitmentStartAt;
     private LocalDateTime recruitmentEndAt;
-
     private StudyGroupStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,7 +41,7 @@ public class StudyGroup {
 
 
     @Builder
-    public StudyGroup(String subject, String contents, String contentsDetail, LocalDateTime studyStartAt, LocalDateTime studyEndAt, int maxSize, Long price, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt, Member leader) {
+    private StudyGroup(String subject, String contents, String contentsDetail, LocalDateTime studyStartAt, LocalDateTime studyEndAt, int maxSize, Long price, LocalDateTime recruitmentStartAt, LocalDateTime recruitmentEndAt, Member leader) {
         this.subject = subject;
         this.contents = contents;
         this.contentsDetail = contentsDetail;
@@ -59,7 +56,7 @@ public class StudyGroup {
         this.status = StudyGroupStatus.RECRUITING;
     }
 
-    public static StudyGroup from(Member leader, CreateStudyGroupParam studyGroupParam) {
+    public static StudyGroup from(Member leader, StudyGroupCreateServiceRequest studyGroupParam) {
         return StudyGroup.builder()
                 .leader(leader)
                 .studyStartAt(studyGroupParam.getStudyStartAt())
@@ -84,16 +81,16 @@ public class StudyGroup {
         return false;
     }
 
-    public void update(UpdateStudyGroupParam param) {
-        this.subject = param.getSubject();
-        this.contents = param.getContents();
-        this.contentsDetail = param.getContentsDetail();
-        this.maxSize = param.getMaxSize();
-        this.price = param.getPrice();
-        this.studyStartAt = param.getStudyStartAt();
-        this.studyEndAt = param.getStudyEndAt();
-        this.recruitmentStartAt = param.getRecruitmentStartAt();
-        this.recruitmentEndAt = param.getRecruitmentEndAt();
+    public void update(StudyGroup updateStudyGroup) {
+        this.subject = updateStudyGroup.getSubject();
+        this.contents = updateStudyGroup.getContents();
+        this.contentsDetail = updateStudyGroup.getContentsDetail();
+        this.maxSize = updateStudyGroup.getMaxSize();
+        this.price = updateStudyGroup.getPrice();
+        this.studyStartAt = updateStudyGroup.getStudyStartAt();
+        this.studyEndAt = updateStudyGroup.getStudyEndAt();
+        this.recruitmentStartAt = updateStudyGroup.getRecruitmentStartAt();
+        this.recruitmentEndAt = updateStudyGroup.getRecruitmentEndAt();
     }
 
     public void cancel() {

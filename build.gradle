@@ -10,6 +10,8 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     //querydsl 추가
     id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+
+
 }
 
 group = 'com.project'
@@ -31,12 +33,20 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-    //querydsl 추가
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    //security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    //redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.16.3'
+
     //querydsl 추가
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
@@ -46,15 +56,19 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+    //lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok' // 테스트 의존성 추가
     testAnnotationProcessor 'org.projectlombok:lombok' // 테스트 의존성 추가
 
+    //h2
     runtimeOnly 'com.h2database:h2'
+
+    //mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+
+
 }
 
 tasks.named('test') {
